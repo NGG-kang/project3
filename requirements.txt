@@ -1,0 +1,9 @@
+django
+djangorestframework
+elasticsearch
+beautifulsoup4
+selenium
+mitmproxy
+chromedriver-autoinstaller
+pillow
+djongo
