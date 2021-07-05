@@ -1,0 +1,222 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Index</title>
+    <link rel="stylesheet" href="{% static 'bootstrap-5.0.2-dist/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap-4.6.0-dist/css/bootstrap.min.css' %}">
+    <link href="{% static 'base.css' %}" rel="stylesheet">
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+
+
+
+    </style>
+    <style type="text/css">/* Chart.js */
+@keyframes chartjs-render-animation{from{opacity:.99}to{opacity:1}}.chartjs-render-monitor{animation:chartjs-render-animation 1ms}.chartjs-size-monitor,.chartjs-size-monitor-expand,.chartjs-size-monitor-shrink{position:absolute;direction:ltr;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1}.chartjs-size-monitor-expand>div{position:absolute;width:1000000px;height:1000000px;left:0;top:0}.chartjs-size-monitor-shrink>div{position:absolute;width:200%;height:200%;left:0;top:0}
+
+
+    </style>
+
+</head>
+<body>
+<script src="{% static 'bootstrap-4.6.0-dist/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'bootstrap-5.0.2-dist/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'jquery-3.6.0.min.js' %}"></script>
+<script src="{% static 'js/jquery.bootstrap.modal.forms.min.js' %}"></script>
+<div class="modal fade" tabindex="-1" role="dialog" id="modal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content"></div>
+    </div>
+</div>
+<header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="{% url 'search_app:search_job' %}">Share Company Info</a>
+    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse"
+            data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false"
+            aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="dropdown">
+        <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+           data-bs-toggle="dropdown" aria-expanded="false">
+            검색 선택
+        </a>
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+            <li><a class="dropdown-item" href="#search_job">공고검색(사람인)</a></li>
+            <li><a class="dropdown-item" href="#search_company">기업검색</a></li>
+        </ul>
+    </div>
+
+    <form action="{% url 'search_app:search_job' %}" method="get" class="w-100">
+        <input class="form-control form-control-dark w-100" type="text" placeholder="공고 검색" aria-label="Search"
+               name="search_job" id="search_text" value="{{ request.GET.search_job }}">
+        <input type="hidden" name="page" value="1">
+    </form>
+    <script>
+        $(document).ready(function(){
+            $(".dropdown-menu li").click(function() {
+                  var text = $(this).text()
+                  switch(text) {
+                    case '공고검색(사람인)':
+                        $("#search_text").attr('placeholder','공고 검색');
+                        $("#search_text").attr('name','search_job');
+                        $("#search_text").attr('value','{{request.GET.search_job}}');
+                        break;
+                    case '기업검색':
+                        $("#search_text").attr('placeholder','기업 검색');
+                        $("#search_text").attr('name','search_company');
+                        $("#search_text").attr('value','{{request.GET.search_company}}');
+                        break;
+                    default:
+                        $("#search_text").attr('placeholder','공고 검색');
+                        $("#search_text").attr('name','search_job');
+                    }
+            });
+
+        });
+    </script>
+
+
+    <ul class="navbar-nav">
+        {% if request.user.is_authenticated %}
+        <li class="nav-item text-nowrap"><a href="{% url 'accounts:logout' %}" id="Logout-btn" class="nav-link px-3"
+                                            name="button">Logout</a></li>
+<!--        <li class="nav-item text-nowrap"><a id="profile-btn" class="nav-link px-3" type="button"-->
+<!--                                            name="button">Profile</a></li>-->
+        {% else %}
+        <li class="nav-item text-nowrap"><a id="login-btn" class="nav-link px-3" type="button" name="button">Login</a>
+        </li>
+        <li class="nav-item text-nowrap"><a id="signup-btn" class="nav-link px-3" type="button" name="button">Sign
+            up</a></li>
+        {% endif %}
+    </ul>
+</header>
+<div class="container-fluid">
+    <div class="row">
+        <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+            <div class="position-sticky pt-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="{% url 'search_app:search_job' %}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round" class="feather feather-home" aria-hidden="true">
+                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                            </svg>
+                            홈
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'search_app:users_enters_info'%}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round" class="feather feather-file" aria-hidden="true">
+                                <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                                <polyline points="13 2 13 9 20 9"></polyline>
+                            </svg>
+                             기업정보 공유
+                        </a>
+                    </li>
+                    {% if request.user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'search_app:user_enter_info' request.user.id %}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round" class="feather feather-shopping-cart" aria-hidden="true">
+                                <circle cx="9" cy="21" r="1"></circle>
+                                <circle cx="20" cy="21" r="1"></circle>
+                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                            </svg>
+                            내 기업정보
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" id="login_required" type="button" name="button">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round" class="feather feather-shopping-cart" aria-hidden="true">
+                                <circle cx="9" cy="21" r="1"></circle>
+                                <circle cx="20" cy="21" r="1"></circle>
+                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                            </svg>
+                            내 기업정보
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round" class="feather feather-users" aria-hidden="true">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                            Test
+                        </a>
+                    </li>
+                </ul>
+
+            </div>
+        </nav>
+
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="chartjs-size-monitor">
+                <div class="chartjs-size-monitor-expand">
+                    <div class=""></div>
+                </div>
+                <div class="chartjs-size-monitor-shrink">
+                    <div class=""></div>
+                </div>
+            </div>
+                {% block content %}
+                {% endblock %}
+
+        </main>
+    </div>
+</div>
+<script type="text/javascript">
+          $(function () {
+            // Log in button
+            $("#login-btn").modalForm({
+                formURL: "{% url 'accounts:login' %}"
+            });
+          });
+          $(document).ready(function () {
+            // Log in button
+            $("#login_required").modalForm({
+                formURL: "{% url 'accounts:login' %}"
+            });
+          });
+          $(function () {
+            // Sign up button
+            $("#signup-btn").modalForm({
+                formURL: "{% url 'accounts:signup' %}"
+            });
+          });
+          $(function () {
+            // Profile in button
+            $("#profile-btn").modalForm({
+                formURL: "{% url 'accounts:profile' %}"
+            });
+          });
+
+</script>
+</body>
+</html>

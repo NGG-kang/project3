@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load saramintag %}
+{% load static %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">검색 결과 : {{ count|is_count }}개</h1>
+</div>
+<div class="table-responsive">
+    {% if count %}
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap">
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                {% if request.GET.page == '1' %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                </li>
+                {% else %}
+                <li class="page-item">
+                    <a class="page-link" href="{% url 'search_app:search_job' %}?q={{ last_q }}&page={{ request.GET.page | minus:1 }}" tabindex="-1" aria-disabled="true">Previous</a>
+                </li>
+                {% endif %}
+                {% for i in page_cal|pages %}
+                <li class="page-item"><a class="page-link" href="{% url 'search_app:search_job' %}?q={{ last_q }}&page={{ i }}">{{ i }}</a></li>
+                {% empty %}
+                <li class="page-item"><a class="page-link active">1</a></li>
+                {% endfor %}
+                {% if request.GET.page|is_last_page:page_cal%}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Next</a>
+                </li>
+                {% else %}
+                <li class="page-item">
+                    <a class="page-link" href="{% url 'search_app:search_job' %}?q={{ last_q }}&page={{ request.GET.page | plus:1 }}" tabindex="-1" aria-disabled="true">Next</a>
+                </li>
+                {% endif %}
+
+            </ul>
+        </nav>
+        공고 클릭시 사람인 공고로 이동합니다.
+    </div>
+    {% endif %}
+    <table class="table table-striped table-hover">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">ID</th>
+            <th scope="col">Title</th>
+            <th scope="col">Company</th>
+            <th scope="col">Career</th>
+            <th scope="col">Education</th>
+            <th scope="col">Employment_type</th>
+            <th scope="col">Work_place</th>
+            <th scope="col">Deadlines</th>
+            <th scope="col">Reg_date</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for job in job_list %}
+        <tr style = "cursor:pointer;" onclick="window.open('https://www.saramin.co.kr{{ job.href }}')">
+            <th scope="row">{{forloop.counter|counter:request.GET.page}}</th>
+            <td>{{ job.id }}</td>
+            <td>{{ job.title }}</td>
+            <td>{{ job.company }}</td>
+            <td>{{ job.career }}</td>
+            <td>{{ job.education }}</td>
+            <td>{{ job.employment_type }}</td>
+            <td>{{ job.work_place }}</td>
+            <td>{{ job.deadlines }}</td>
+            <td>{{ job.reg_date }}</td>
+        </tr>
+        {% empty %}
+        <tr>검색 결과가 없습니다.</tr>
+        {% endfor %}
+    </table>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("button[name='create_enter']").click( function() {
+              var button = $("button[name=create_enter]")
+              var id = button.attr('id');
+              console.log(id+"create");
+              button.modalForm({
+                formURL: "{% url 'search_app:create_enter' %}",
+                modalID: id
+                });
+            });
+            $("button[name='update_enter']").click( function() {
+              var button = $("button[name=update_enter]")
+              var id = button.attr('id');
+              console.log(id+"update");
+              button.modalForm({
+                formURL: $(this).modalForm({formURL: $(this).data("form-url")})
+                });
+            });
+            $("button[name='delete_enter']").click( function() {
+              var button = $("button[name=delete_enter]")
+              var id = button.attr('id');
+              console.log(id+"delete");
+              button.modalForm({
+                formURL: $(this).data("form-url"), isDeleteForm: true
+                });
+            });
+        });
+    </script>
+</div>
+{% endblock %}

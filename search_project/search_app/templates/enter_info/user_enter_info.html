@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="modal fade" id="create-modal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+    </div>
+  </div>
+</div>
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 ">
+    <h1 class="h2">내 기업정보</h1>
+    <button id="create-enter" class="btn btn-primary" type="button" name="button">
+        Create enter
+    </button>
+</div>
+<div class="table-responsive">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap">
+    </div>
+    <table class="table table-striped table-hover" id="enter-table">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Username</th>
+            <th scope="col">Company</th>
+            <th scope="col">name</th>
+            <th scope="col">memo</th>
+            <th scope="col">location</th>
+            <th scope="col">photo</th>
+            <th scope="col">buttons</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for enter in user_enter_info %}
+
+        <tr style = "cursor:pointer;" onclick="">
+            <th scope="row">{{forloop.counter}}</th>
+            <td>{{ enter.author.username }}</td>
+            <td>{{ enter.company }}</td>
+            <td>{{ enter.name }}</td>
+            <td>{{ enter.memo }}</td>
+            <td>{{ enter.location }}</td>
+            <td><img src="{{ enter.photo }}" /></td>
+
+            <td>
+                {% if request.user.is_authenticated %}
+                <button class="read-enter bs-modal btn btn-sm btn-primary" type="button" name="read-enter"
+                        data-form-url="{% url 'search_app:read_enter' enter.pk  %}">
+                    Read enter
+                </button>
+                <button class="update-enter bs-modal btn btn-sm btn-primary" type="button" name="update-enter" id="{{ enter.pk }}"
+                        data-form-url="{% url 'search_app:update_enter' enter.pk  %}">
+                    Update enter
+                </button>
+                <button class="delete-enter bs-modal btn btn-sm btn-danger" type="button" name="delete-enter"
+                        data-form-url="{% url 'search_app:delete_enter' enter.pk %}">
+                    Delete enter
+                </button>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr>내가 공유한 기업정보가 없습니다.</tr>
+        {% endfor %}
+    </table>
+    <script type="text/javascript">
+        $(function() {
+            $("#create-enter").modalForm({
+                formURL: "{% url 'search_app:create_enter' %}",
+                modalID: "#create-modal"
+            });
+            $(".read-enter").each(function () {
+                $(this).modalForm({formURL: $(this).data("form-url")});
+            });
+             $(".delete-enter").each(function () {
+                $(this).modalForm({formURL: $(this).data("form-url"), isDeleteForm: true});
+            });
+
+            var asyncSuccessMessage = [
+              "<div ",
+              "style='position:fixed;top:0;z-index:10000;width:100%;border-radius:0;' ",
+              "class='alert alert-icon alert-success alert-dismissible fade show mb-0' role='alert'>",
+              "Success: Book was updated.",
+              "<button type='button' class='close' data-dismiss='alert' aria-label='Close'>",
+              "<span aria-hidden='true'>&times;</span>",
+              "</button>",
+              "</div>",
+              "<script>",
+              "$('.alert').fadeTo(2000, 500).slideUp(500, function () {$('.alert').slideUp(500).remove();});",
+              "<\/script>"
+            ].join();
+
+
+            function updateBookModalForm() {
+              $(".update-enter").each(function () {
+                $(this).modalForm({
+                  formURL: $(this).data("form-url"),
+                  asyncUpdate: true,
+                  asyncSettings: {
+                    closeOnSubmit: true,
+                    successMessage: asyncSuccessMessage,
+                    dataUrl: "{% url 'search_app:user_enter_info' request.user.pk %}",
+                    dataElementId: "#enter-table",
+                    dataKey: "table",
+                    addModalFormFunction: updateBookModalForm
+                  }
+                });
+              });
+            }
+            updateBookModalForm();
+        });
+    </script>
+</div>
+{% endblock %}

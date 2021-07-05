@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
+    <h1 class="h2">공유된 기업정보</h1>
+</div>
+
+<div class="table-responsive">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap">
+    </div>
+    <table class="table table-striped table-hover">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">ID</th>
+            <th scope="col">Title</th>
+            <th scope="col">Company</th>
+            <th scope="col">name</th>
+            <th scope="col">memo</th>
+            <th scope="col">location</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for enter in users_enters_list %}
+
+        <tr style = "cursor:pointer;" onclick="">
+            <th scope="row">{{forloop.counter}}</th>
+            <td>{{ enter.author.username }}</td>
+            <td>{{ enter.company }}</td>
+            <td>{{ enter.name }}</td>
+            <td>{{ enter.memo }}</td>
+            <td>{{ enter.location }}</td>
+            <div class="modal fade" tabindex="-1" role="dialog" id="modal">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content"></div>
+                </div>
+            </div>
+            <td>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>유저들이 공유한 기업정보가 없습니다.</tr>
+        {% endfor %}
+    </table>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("button[name='create_enter']").click( function() {
+              var button = $("button[name=create_enter]")
+              var id = button.attr('id');
+              console.log(id+"create");
+              button.modalForm({
+                formURL: "{% url 'search_app:create_enter' %}",
+                modalID: id
+                });
+            });
+            $("button[name='update_enter']").click( function() {
+              var button = $("button[name=update_enter]")
+              var id = button.attr('id');
+              console.log(id+"update");
+              button.modalForm({
+                formURL: $(this).modalForm({formURL: $(this).data("form-url")})
+                });
+            });
+            $("button[name='delete_enter']").click( function() {
+              var button = $("button[name=delete_enter]")
+              var id = button.attr('id');
+              console.log(id+"delete");
+              button.modalForm({
+                formURL: $(this).data("form-url"), isDeleteForm: true
+                });
+            });
+        });
+    </script>
+</div>
+{% endblock %}
