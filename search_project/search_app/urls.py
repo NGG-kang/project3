@@ -17,6 +17,14 @@ urlpatterns = [
     path('update_enter/<int:pk>/', views.EnterUpdateView.as_view(), name='update_enter'),
     path('read_enter/<int:pk>/', views.EnterReadView.as_view(), name='read_enter'),
     path('delete_enter/<int:pk>/', views.EnterDeleteView.as_view(), name='delete_enter'),
+    path('apply_enter_info/', views.apply_enter_info, name='apply_enter_info'),
+
+
+    path('crwaling_info/', views.CrawlingInfoList.as_view(), name='crwaling_info'),
+    path('crwaling_info_saramin/<int:pk>/', views.SaraminModalView.as_view(), name='crwaling_info_saramin'),
+    path('crwaling_info_jobkorea/<int:pk>/', views.JobkoreaModalView.as_view(), name='crwaling_info_jobkorea'),
+    path('crwaling_info_jobplanet/<int:pk>/', views.JobplanetModalView.as_view(), name='crwaling_info_jobplanet'),
+    path('crwaling_info_kreditjob/<int:pk>/', views.KreditJobModalView.as_view(), name='crwaling_info_kreditjob'),
 
     path('search_job/users_enters_info/', views.GetUsersEntersInfo.as_view(), name='users_enters_info'),
     path('search_job/<int:pk>/user_enter_info/', views.GetUserEnterInfo.as_view(), name='user_enter_info'),
