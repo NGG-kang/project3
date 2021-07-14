@@ -1,6 +1,8 @@
 from django import template
 from bs4 import BeautifulSoup
 from django.utils.safestring import mark_safe
+from datetime import datetime, timedelta
+import ast
 
 register = template.Library()
 
@@ -57,3 +59,27 @@ def safe_mark(context):
     return format_html(mark_safe(context))
 
 
+@register.filter
+def next_seven_days(created_at):
+    return created_at+timedelta(days=7)
+
+
+@register.filter(is_safe=True)
+def jobdam_to_dict(jobdam):
+    jobdam = ast.literal_eval(jobdam)
+    href = jobdam['href']
+    title = jobdam['title']
+    date = jobdam['date']
+    text = '<td style="cursor:pointer;" onclick="window.open(\''+href+'\')">'+title+'</td>' \
+           '<td style="cursor:pointer;" onclick="window.open(\''+href+'\')">'+date+'</td>'
+    return mark_safe(text)
+
+
+@register.filter
+def minus_one(value):
+    return int(value)-1
+
+@register.filter
+def photo_range(photos):
+    count = len(photos)
+    return range(count)
