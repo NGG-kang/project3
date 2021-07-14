@@ -3,7 +3,7 @@ import json
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ImproperlyConfigured, ValidationError
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.utils.translation import gettext as _
 from django.shortcuts import render
 from django.views import generic
@@ -15,25 +15,17 @@ from bootstrap_modal_forms.generic import (
   BSModalReadView,
   BSModalDeleteView
 )
-from asgiref.sync import sync_to_async
 from .forms import MyEnterpriseForm
-
-import requests
-import time
-from bs4 import BeautifulSoup
-
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework import status
 
-from .models import Post, Comment, MyEnterprise, EnterPhoto
+from .models import Post, Comment, MyEnterprise, MyEnterPhoto, CrwalingModel, SaraminInfo, JobKoreaInfo, JobPlanetInfo, KreditJobInfo, CrwalingPhotos
 from .Serailizer import PostSerializer, CommentSerializer
 
 from elasticsearch import Elasticsearch
-from django.shortcuts import get_object_or_404
-from search_app.search import SearchJob, SearchCompany
-
+from search_app.tasks import search_job_task, crwaling_enter_info
 
 
 class SearchView(APIView):
@@ -75,7 +67,7 @@ class CommentView(ModelViewSet):
 
 
 class SearchJobTemplateView(TemplateView):
-    template_name = "search.html"
+    template_name = "search_job.html"
 
     def get(self, request, *args, **kwargs):
         search_job = request.GET.get("search_job")
@@ -87,8 +79,8 @@ class SearchJobTemplateView(TemplateView):
             page = request.GET.get('page')
             if not page:
                 page = "1"
-            context = SearchJob(context, page, search_job)
-        return render(template_name="search.html", context=context, request=request)
+            context = search_job_task(context, page, search_job)
+        return render(template_name="search_job.html", context=context, request=request)
 
 
 class SearchCompanyTemplateView(TemplateView):
@@ -99,7 +91,7 @@ class SearchCompanyTemplateView(TemplateView):
         context = self.get_context_data(**kwargs)
 
         if search_company:
-            context = SearchCompany(context, search_company)
+            context = search_job_task(context, search_company)
         return render(template_name="search_company.html", context=context, request=request)
 
 
@@ -116,6 +108,7 @@ class EnterCreateView(BSModalCreateView):
 
     def form_valid(self, form):
         form.instance.author = self.request.user
+
         return super(EnterCreateView, self).form_valid(form)
 
     def get_success_url(self):
@@ -187,3 +180,97 @@ class GetUserEnterInfoDetail(LoginRequiredMixin, generic.DetailView):
                 }
             )
         return queryset
+
+# 크롤링 신청 함수
+# TODO: celery 넘어가기 전에 request 500번 미만, 이미 있으면 7일 이내인지 확인하기
+def apply_enter_info(request):
+    if request.method == "POST":
+        try:
+            company_name = request.POST.get("company_name")
+            company_link = request.POST.get("company_link")
+            crwaling_enter_info(company_name, company_link)
+            return HttpResponse(status=201)
+        except Exception as e:
+            print(e)
+            return HttpResponse(status=500)
+
+
+# 크롤링 된거 보여주는 함수
+def Is_crawler_info(request):
+    if request.method == "POST":
+        try:
+            company_name = request.POST.get("company_name")
+            company_link = request.POST.get("company_link")
+            crwaling_enter_info(company_name, company_link)
+            return HttpResponse(status=201)
+        except Exception as e:
+            print(e)
+            return HttpResponse(status=500)
+
+# 크롤링된 기업들 전부 보여주는 페이지
+class CrawlingInfoList(LoginRequiredMixin, generic.ListView):
+    template_name = 'crawling_info_list.html'
+    model = CrwalingModel
+    queryset = CrwalingModel.objects.order_by('enter_name', '-created_at').distinct('enter_name')
+    # queryset = CrwalingModel.objects.all().distinct()
+    context_object_name = "crawling"
+
+
+class SaraminModalView(BSModalReadView):
+    model = CrwalingModel
+    template_name = 'crawl_enter/saramin.html'
+    context_object_name = "crawling_info"
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        saramin = SaraminInfo.objects.get(enter=self.object)
+        photos = CrwalingPhotos.objects.filter(saramin_info=saramin)
+        context = self.get_context_data(object=self.object)
+        context["info"] = saramin
+        context['photos'] = photos
+        return self.render_to_response(context)
+
+
+class JobkoreaModalView(BSModalReadView):
+    model = CrwalingModel
+    template_name = 'crawl_enter/jobkorea.html'
+    context_object_name = "crawling_info"
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        jobkorea = JobKoreaInfo.objects.get(enter=self.object)
+        photos = CrwalingPhotos.objects.filter(jobkorea_info=jobkorea)
+        context = self.get_context_data(object=self.object)
+        context["info"] = jobkorea
+        context['photos'] = photos
+        return self.render_to_response(context)
+
+
+class JobplanetModalView(BSModalReadView):
+    model = CrwalingModel
+    template_name = 'crawl_enter/jobplanet.html'
+    context_object_name = "crawling_info"
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        jobplanet = JobPlanetInfo.objects.get(enter=self.object)
+        photos = CrwalingPhotos.objects.filter(jobplanet_info=jobplanet)
+        context = self.get_context_data(object=self.object)
+        context["info"] = jobplanet
+        context['photos'] = photos
+        return self.render_to_response(context)
+
+
+class KreditJobModalView(BSModalReadView):
+    model = CrwalingModel
+    template_name = 'crawl_enter/kreditjob.html'
+    context_object_name = "crawling_info"
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        kreditjob = KreditJobInfo.objects.get(enter=self.object)
+        photos = CrwalingPhotos.objects.filter(kreditjob_info=kreditjob)
+        context = self.get_context_data(object=self.object)
+        context["info"] = kreditjob
+        context['photos'] = photos
+        return self.render_to_response(context)
