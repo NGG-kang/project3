@@ -1,0 +1,32 @@
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">기업정보 요청 신청하기</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{% url 'search_app:apply_enter_info' %}" method="post" id="apply_enter_info">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="modal-body">
+                        <p id="company_name" class="fs-4"></p>
+                        <p class="fs-5">기업 정보를 신청하겠습니까?</p>
+                        <p><a id="company_link">공고링크</a></p>
+                        <input name="company_name" type="hidden"/>
+                        <input name="company_link" type="hidden"/>
+                        <input type="hidden" name="next" value="{{ request.path }}">
+                        <br/>
+                        <p class="fs-1">주의사항</p>
+                        <p class="fs-6">이미 있는 정보는 7일 이후에 가능합니다. <br/> 서버는 하루 최대 500건의 기업 정보 크롤링이 가능하고 <br/> 12시에
+                            초기화됩니다. </p>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+                    <button type="submit" class="btn btn-primary">신청하기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -3,9 +3,24 @@
 {% load static %}
 
 {% block content %}
+
+<!-- 신청 알람 div-->
+
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
     <h1 class="h2">검색 결과 : {{ count|is_count }}개</h1>
+    <figure class="text-end">
+        <blockquote class="blockquote">
+            <p>주의사항</p>
+        </blockquote>
+        <figcaption class="blockquote-footer">
+            기본 공고는 사람인이며, 공고 클릭시 사람인 공고로 이동합니다.<br/>
+            경력 신입, 위치 서울, 경기 필터링 및 최근 등록순으로 정렬되어있습니다.<br/>
+            크롤링은 매우 불안정하여 간혹 중간에 크롤링이 중단될수 있습니다.
+        </figcaption>
+    </figure>
 </div>
+
+
 <div class="table-responsive">
     {% if count %}
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap">
@@ -34,10 +49,9 @@
                     <a class="page-link" href="{% url 'search_app:search_job' %}?q={{ last_q }}&page={{ request.GET.page | plus:1 }}" tabindex="-1" aria-disabled="true">Next</a>
                 </li>
                 {% endif %}
-
             </ul>
         </nav>
-        공고 클릭시 사람인 공고로 이동합니다.
+
     </div>
     {% endif %}
     <table class="table table-striped table-hover">
@@ -53,25 +67,99 @@
             <th scope="col">Work_place</th>
             <th scope="col">Deadlines</th>
             <th scope="col">Reg_date</th>
+            <th scope="col">크롤링신청</th>
         </tr>
         </thead>
         <tbody>
         {% for job in job_list %}
-        <tr style = "cursor:pointer;" onclick="location.href='https://www.saramin.co.kr{{ job.href }}'">
+        <tr >
             <th scope="row">{{forloop.counter|counter:request.GET.page}}</th>
-            <td>{{ job.id }}</td>
-            <td>{{ job.title }}</td>
-            <td>{{ job.company }}</td>
-            <td>{{ job.career }}</td>
-            <td>{{ job.education }}</td>
-            <td>{{ job.employment_type }}</td>
-            <td>{{ job.work_place }}</td>
-            <td>{{ job.deadlines }}</td>
-            <td>{{ job.reg_date }}</td>
+            <td style="cursor:pointer;" onclick="window.open('https://www.saramin.co.kr{{ job.href }}')">{{ job.id }}</td>
+            <td style="cursor:pointer;" onclick="window.open('https://www.saramin.co.kr{{ job.href }}')">{{ job.title }}</td>
+            <td style="cursor:pointer;" onclick="window.open('https://www.saramin.co.kr{{ job.href }}')">{{ job.company }}</td>
+            <td style="cursor:pointer;" onclick="window.open('https://www.saramin.co.kr{{ job.href }}')">{{ job.career }}</td>
+            <td style="cursor:pointer;" onclick="window.open('https://www.saramin.co.kr{{ job.href }}')">{{ job.education }}</td>
+            <td style="cursor:pointer;" onclick="window.open('https://www.saramin.co.kr{{ job.href }}')">{{ job.employment_type }}</td>
+            <td style="cursor:pointer;" onclick="window.open('https://www.saramin.co.kr{{ job.href }}')">{{ job.work_place }}</td>
+            <td style="cursor:pointer;" onclick="window.open('https://www.saramin.co.kr{{ job.href }}')">{{ job.deadlines }}</td>
+            <td style="cursor:pointer;" onclick="window.open('https://www.saramin.co.kr{{ job.href }}')">{{ job.reg_date }}</td>
+            <td>
+                <button type="button" class="btn btn-primary get_info" data-bs-toggle="modal" data-bs-target="#exampleModal" id="{{ job.company }}" href="{{ job.href }}">
+                    신청
+                </button>
+            </td>
         </tr>
         {% empty %}
         <tr>검색 결과가 없습니다.</tr>
         {% endfor %}
     </table>
+
+
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $(".btn.btn-primary.get_info").click(function(){
+                var name = $(this).attr('id');
+                var href = "https://www.saramin.co.kr"+$(this).attr('href');
+                console.log(name, href);
+
+                $("#company_name").text(name);
+                $("#company_link").attr('href', href);
+
+                $('input[name="company_name"]').attr('value', name);
+                $('input[name="company_link"]').attr('value', href);
+            });
+        });
+<!--TODO: -->
+        $('#apply_enter_info').on('submit', function(e){
+            e.preventDefault();
+            var myModal = new bootstrap.Modal(document.getElementById('exampleModalLabel'), {
+              keyboard: false
+            });
+            myModal.hide();
+            $('#exampleModalLabel').modal('hide')
+            $('.alert-box').append(
+               $('<div/>')
+               .attr('role', 'alert')
+               .addClass('alert alert-warning alert-dismissible fade show')
+               .text('신청 완료')
+               .append(
+                    $('<button/>')
+                    .attr('type', 'button')
+                    .attr('data-bs-dismiss', 'alert')
+                    .attr('aria-label', 'Close')
+                    .addClass('btn-close')
+               )
+            );
+            setTimeout( function () {
+                 $('.alert').alert('close');
+            }, 5000);
+
+            $.ajax({
+                url: this.action,
+                type: $(this).attr('method'),
+                data: $('#apply_enter_info').serialize(),
+                success: function(data){
+                     $('.alert-box').append(
+                       $('<div/>')
+                       .attr('role', 'alert')
+                       .addClass('alert alert-warning alert-dismissible fade show')
+                       .text('크롤링 완료')
+                       .append(
+                            $('<button/>')
+                            .attr('type', 'button')
+                            .attr('data-bs-dismiss', 'alert')
+                            .attr('aria-label', 'Close')
+                            .addClass('btn-close')
+                           )
+                     );
+                     setTimeout( function () {
+                         $('.alert').alert('close');
+                     }, 5000);
+                }
+            });
+        });
+
+
+    </script>
 </div>
 {% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'crawl_enter/crawling_info.html' %}
+{% load saramintag %}
+{% load widget_tweaks %}
+
+{% block jobdam %}
+{% if info.jobdom_list %}
+<li class="list-group-item list-group-item-action list-group-item-info">
+    <h1 class="h2 text-center">kreditjob 잡담 게시글</h1>
+    <p class="text-center"><strong>클릭시 잡담글이 열립니다.</strong></p>
+  </li>
+<div class="table-responsive">
+<table class="table table-striped table-hover">
+  <thead>
+  <tr>
+    <th scope="col">#</th>
+    <th scope="col">title</th>
+    <th scope="col">created_at</th>
+  </tr>
+  </thead>
+  <tbody>
+  {% for i in info.jobdom_list %}
+  <tr>
+    <th scope="row">{{forloop.counter}}</th>
+    {{ i|jobdam_to_dict }}
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+  </div>
+{% endif %}
+
+{% endblock %}
