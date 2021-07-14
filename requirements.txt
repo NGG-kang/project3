@@ -7,3 +7,6 @@ mitmproxy
 chromedriver-autoinstaller
 pillow
 djongo
+psycopg2
+celery
+django-celery-results
