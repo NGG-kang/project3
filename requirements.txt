@@ -1,12 +1,33 @@
+# django
 django
+pillow
 djangorestframework
-elasticsearch
+django_debug_toolbar
+# bootstrap_modal_forms / python setup.py install
+django-bootstrap-modal-forms
+django-widget-tweaks
+# db
+psycopg2
+
+# crawling
 beautifulsoup4
 selenium
-mitmproxy
 chromedriver-autoinstaller
-pillow
-djongo
-psycopg2
+
+# celery
 celery
 django-celery-results
+django-celery-beat
+
+# celery view
+flower
+
+# async view
+uvicorn
+httpx
+
+# not used
+elasticsearch
+mitmproxy
+djongo
+django_crontab
