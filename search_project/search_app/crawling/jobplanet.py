@@ -28,8 +28,12 @@ def get_secret(setting, secrets=secrets):
     except KeyError:
         error_msg = "Set the {} environment variable".format(setting)
         return ""
-LOGIN_ID = get_secret("JOBPLANET_ID")
-LOGIN_PASSWORD = get_secret("JOBPLANET_PASSWORD")
+try:
+    LOGIN_ID = get_secret("JOBPLANET_ID")
+    LOGIN_PASSWORD = get_secret("JOBPLANET_PASSWORD")
+except:
+    LOGIN_ID = ""
+    LOGIN_PASSWORD = ""
 
 
 class GetJobPlanetInfo:
@@ -188,6 +192,8 @@ class GetJobPlanetInfo:
             ul = soup.select_one('ul.basic_info_more')
             li = ul.select('dl.info_item_more')[2]
             location = li.select_one('dd').text
+            if location=='-':
+                location = "장소 없음"
             print(location)
         except Exception as e:
             print("잡플래닛 위치 찾기 실패")
@@ -200,7 +206,7 @@ class GetJobPlanetInfo:
         jobplanet.url = REVIEW_URL
         jobplanet.save()
         CrwalingPhotos.objects.create(jobplanet_info=jobplanet, photo=image)
-
+        print('잡플래닛 성공')
         driver.quit()
         return location
 
