@@ -1,4 +1,5 @@
 import requests
+import pickle
 from bs4 import BeautifulSoup
 
 
@@ -80,9 +81,12 @@ def SearchJob(context, page, search_job):
             pass
         context['page_cal'] = page_cal + 1
         context['last_q'] = search_job
+        try:
+            foo = pickle.load(open("var.pickle", "rb"))
+        except (OSError, IOError) as e:
+            foo = 3
+            pickle.dump(foo, open("var.pickle", "wb"))
+            # context.decode('utf8')
+            # print(context)
         return context
-
-
-
-def SearchCompany(context, search_company):
-    pass
+    return {context:""}
