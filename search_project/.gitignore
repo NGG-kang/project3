@@ -114,3 +114,4 @@ dmypy.json
 .pyre/
 secrets.json
 /media
+django-bootstrap-modal-forms-2.2.0/

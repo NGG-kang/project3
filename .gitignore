@@ -117,3 +117,4 @@ dmypy.json
 
 static/
 statics/
+search_project/.vscode/settings.json
