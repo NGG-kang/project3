@@ -40,26 +40,27 @@ class GetKreditJobInfo:
                 location1, location2 = location.split(',')
                 # 이름에 (주) 말고도 이름(영어이름) 이렇게도 있네 ㅋㅋ
                 name = name.rstrip(' ').split('(')[0]
+                print(name)
                 location1 = location1.lstrip(' ')
                 location2 = location2.lstrip(' ')
                 print(name, company_name, location1, location2)
                 locations1 = {saramin_location[0]:0, jobkorea_location[0]:0, jobplaent_location[0]:0}
                 locations2 = {saramin_location[1]:0, jobkorea_location[1]:0, jobplaent_location[1]:0}
                 print(locations1, locations2)
-                if name == company_name or name == company_name+"(주)" or name == "(주)"+company_name:
+                if name == company_name+"(주)" or name == "(주)"+company_name or name in company_name :
                     if location1 in locations1 and location2 in locations2:
                         print("클릭 성공")
                         i.click()
                         driver.implicitly_wait(10)
                         break
             if driver.current_url == "https://www.kreditjob.com/":
-                self.count+=1
+                self.count += 1
                 print("현재 접속 URL: ", driver.current_url)
                 print(self.count, "회 시도중, 찾기 실패, 다시시도 합니다.")
                 if self.count <= 5:
                     return self.get_company_url(company_name, saramin_location, jobplaent_location, jobkorea_location, driver)
                 else:
-                    driver.quit()
+                    return True
             else:
                 print("찾기 성공")
                 print(driver.current_url)
@@ -72,11 +73,8 @@ class GetKreditJobInfo:
             if self.count <= 5:
                 return self.get_company_url(company_name, saramin_location, jobplaent_location, jobkorea_location, driver)
             else:
-                driver.quit()
-            return False
-
-        print(company_name)
-        return True
+                return True
+        return False
 
     def get_company_info(self, company_name, saramin_location="", jobkorea_location="", jobplanet_location=""):
         location = ""
@@ -109,8 +107,14 @@ class GetKreditJobInfo:
 
         # kreditjob은 url을 얻어와서 할수가 없으므로 클릭으로 이동 그러므로 콜만 함
         if self.company_url == "":
-            # False면 찾는 회사 없음
-            self.get_company_url(company_name, saramin_location, jobplanet_location, jobkorea_location, driver)
+            # False면 찾는 회사 있음
+            if self.get_company_url(company_name, saramin_location, jobplanet_location, jobkorea_location, driver):
+                print("Kreditjob search 실패")
+                try:
+                    driver.quit()
+                except:
+                    print("drive가 이미 닫혔습니다.")
+                return "Kreditjob search 실패"
         else:
             driver.get(self.company_url)
             driver.implicitly_wait(5)
