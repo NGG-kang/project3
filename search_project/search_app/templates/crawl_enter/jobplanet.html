@@ -1,1 +1,9 @@
-{% include 'crawl_enter/crawling_info.html' %}
+{% extends 'crawl_enter/crawling_info.html' %}
+{% block floatbutton %}
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">잡코리아 정보로</button>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">크레딧잡 정보로</button>
+</div>
+{% endblock %}
