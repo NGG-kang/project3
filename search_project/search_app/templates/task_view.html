@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static humanize saramintag %}
+
+
+{% block content %}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
+    <h1 class="h2">현재 작동정보 : {{ task|length }}개</h1>
+</div>
+<div class="modal fade" tabindex="-1" role="dialog" id="modal" id="crawl_modal">
+    <div class="modal-dialog modal-dialog-scrollable modal-xl" role="document">
+        <div class="modal-content"></div>
+    </div>
+</div>
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">UUID</th>
+                <th scope="col">status</th>
+                <th scope="col">received</th>
+                <th scope="col">started</th>
+                <th scope="col">end</th>
+                <th scope="col">company_name</th>
+                <th scope="col">company_link</th>
+                <th scope="col">runtime</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for key, values in task %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ key }}</td>
+            <td>{{ values.state|lower }}</td>
+            <td>{{ values.received|timestamp_to_date }}</td>
+            <td>{{ values.started|timestamp_to_date }}</td>
+            <td>{{ values.succeeded|timestamp_to_date }}</td>
+            {{ values.kwargs|unpack_kwargs }}
+            <td>{{ values.runtime|intcomma }}초</td>
+        </tr>
+        {% endfor %}
+        
+    </table>
+    <script>
+        $(".read-enter").each(function () {
+            $(this).modalForm({formURL: $(this).data("form-url")});
+        });
+    </script>
+
+</div>
+{% endblock %}
