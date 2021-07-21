@@ -2,10 +2,16 @@
 {% load saramintag %}
 {% load static %}
 {% load humanize %}
+{% load saramintag %}
 {% block content %}
 
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
-    <h1 class="h2">현재 크롤링된 기업: {{ crawling.count }}개</h1>
+    <h1 class="h2">현재 크롤링된 기업: {{ crawling|length }}개</h1>
+</div>
+<div class="modal fade" tabindex="-1" role="dialog" id="modal" id="crawl_modal">
+    <div class="modal-dialog modal-dialog-scrollable modal-xl" role="document">
+        <div class="modal-content"></div>
+    </div>
 </div>
 <div class="table-responsive">
     <table class="table table-striped table-hover">
@@ -15,6 +21,7 @@
                 <th scope="col">Enter name</th>
                 <th scope="col">Created_at</th>
                 <th scope="col">Next Requestable Date</th>
+                <th scope="col">Remaining time</th>
                 <th scope="col">Saramin</th>
                 <th scope="col">JobKorea</th>
                 <th scope="col">JobPlanet</th>
@@ -26,8 +33,9 @@
         <tr>
             <th scope="row">{{forloop.counter}}</th>
             <td>{{ crawl.enter_name }}</td>
-            <td>{{ crawl.created_at|naturaltime }}</td>
+            <td>{{ crawl.created_at }}</td>
             <td>{{ crawl.created_at|next_seven_days }}</td>
+            <td>{{ crawl.created_at|naturaltime }}</td>
             <td><button class="read-enter bs-modal btn btn-sm btn-primary" type="button" name="saramin"
                         data-form-url="{% url 'search_app:crwaling_info_saramin' crawl.pk  %}">
                 Read Saramin
