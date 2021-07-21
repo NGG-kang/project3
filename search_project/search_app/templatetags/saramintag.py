@@ -1,3 +1,4 @@
+import json
 from django import template
 from bs4 import BeautifulSoup
 from django.utils.safestring import mark_safe
@@ -58,12 +59,13 @@ def safe_mark(context):
     from django.utils.html import format_html
     return format_html(mark_safe(context))
 
-
+# 만들어진지 7일 이후의 날이 언제인지
 @register.filter
 def next_seven_days(created_at):
     return created_at+timedelta(days=7)
 
-
+# 잡담 전용 mark safe필터
+# 잡담이 string 형태로 와서 string -> dict -> mark_safe 방식으로 데이터 뿌려줌
 @register.filter(is_safe=True)
 def jobdam_to_dict(jobdam):
     jobdam = ast.literal_eval(jobdam)
@@ -79,7 +81,33 @@ def jobdam_to_dict(jobdam):
 def minus_one(value):
     return int(value)-1
 
+# photo 개수를 range로 바꿔주는것, 이건 어디나 써도 될듯
 @register.filter
 def photo_range(photos):
     count = len(photos)
     return range(count)
+
+@register.filter
+def is_same_int(x, y):
+    if int(x)==int(y):
+        return True
+    return False
+
+
+@register.filter
+def timestamp_to_date(value):
+    try:
+        ts = float(value)
+    except:
+        return None
+    return datetime.fromtimestamp(ts)
+
+@register.filter
+def unpack_kwargs(value):
+    value = ast.literal_eval(value)
+    company_name = value['company_name']
+    href = value['url']
+    text = '<td style="cursor:pointer;" onclick="window.open(\''+href+'\')">'+company_name+'</td>' \
+           '<td style="cursor:pointer;" onclick="window.open(\'' + \
+        href+'\')">'+href+'</td>'
+    return mark_safe(text)
