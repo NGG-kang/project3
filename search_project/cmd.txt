@@ -1,0 +1,29 @@
+# celery
+celery -A search_project beat -l info
+celery -A search_project worker -l info -P gevent
+celery -A search_project worker -l info -P gevent --concurrency=1
+celery -A search_project worker -Q crwaling_enter_info -l info -P gevent --concurrency=1
+celery -A search_project flower --broker_api=redis://guest:guest@localhost:6379/0
+
+# postgres db 삭제
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO public;
+
+
+# django 명령어
+python manage.py migrate --fake core zero
+python manage.py showmigrations
+python manage.py migrate --fake-initial
+python manage.py runserver --insecure
+
+
+# 기본 시작 명령어
+python manage.py runserver --insecure
+celery -A search_project worker -Q crwaling_enter_info -l info -P gevent --concurrency=1
+celery -A search_project flower --broker_api=redis://guest:guest@localhost:6379/0
+celery -A search_project beat -l info
+
+# memcache 시작
+c:\> schtasks /create /sc onstart /tn memcached /tr "'c:\memcached\memcached.exe' -m 512"
+c:\> schtasks /delete /tn memcached
+netstat -an
