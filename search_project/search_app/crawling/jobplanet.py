@@ -38,11 +38,12 @@ except:
 
 class GetJobPlanetInfo:
 
-    def __init__(self, company_url="", enter=None):
+    def __init__(self, company_url="", enter=None, count=1):
         self.company_url = company_url
         self.enter = enter
         self.LOGIN_ID = LOGIN_ID
         self.LOGIN_PASSWORD = LOGIN_PASSWORD
+        self.count = count
 
     SEARCH_REVIEW = "https://www.jobplanet.co.kr/reviews"
     LOGIN_URL = "https://www.jobplanet.co.kr/users/sign_in?_nav=gb"
@@ -52,8 +53,19 @@ class GetJobPlanetInfo:
     def jobplanet_login(self, driver):
         driver.get(self.LOGIN_URL)
         driver.implicitly_wait(5)
-        id = driver.find_element_by_id('user_email')
-        pw = driver.find_element_by_id('user_password')
+        id = ""
+        pw = ""
+        try:
+            id = driver.find_element_by_id('user_email')
+            pw = driver.find_element_by_id('user_password')
+        except:
+            self.count+=1
+            if self.count<6:
+                return self.jobplanet_login(self, driver)
+            else:
+                print('잡플래닛 로그인부터 실패했습니다.')
+                return ""
+
         id.click()
         id.send_keys(self.LOGIN_ID)
         time.sleep(1)
