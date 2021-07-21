@@ -39,14 +39,17 @@ class GetSaraminEnterInfo:
                 company_csn = company_url.split('?')[-1] # cns=~~~ 이렇게 출력됨
         # return {"company_csn": company_csn, "company_name": company_name, "company_url": company_url, "driver": driver}
             except Exception as e:
+                print(e)
                 print('기업링크가 없습니다.')
         return [company_csn, company_url]
 
     # TODO get_url은 url만 리턴하고 get_info로 데이터 얻도록 새로 만들기
     def get_company_info(self, saramin_url, company_name):
+        print(company_name)
+        print("사람인 시작")
+        print(saramin_url)
         image1, image2, image3 = "", "", ""
         location = ""
-        print(saramin_url)
         driver = selenium_setting()
 
         # 주소가 없으면 url 찾기 실행
@@ -54,6 +57,7 @@ class GetSaraminEnterInfo:
         if self.company_csn == "":
             print('DB에서 안불러옴')
             company_csn, company_url = self.get_company_url(saramin_url, driver)
+            print(company_csn)
         else:
             company_csn = self.company_csn
             company_name = self.company_name
