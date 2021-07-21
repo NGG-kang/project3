@@ -11,12 +11,17 @@ router.register(r'comment', views.CommentView)
 app_name = 'search_app'
 urlpatterns = [
     path('api/', views.SearchView.as_view()),
+
+    # path('search_job/', views.search_jop_view, name="search_job"),
     path('search_job/', views.SearchJobTemplateView.as_view(), name="search_job"),
-    path('search_company/', views.SearchCompanyTemplateView.as_view(), name="search_company"),
+    path('search_company/',views.SearchCompanyListView.as_view(), name="search_company"),
+    path('task_list/', views.TaskTemplateView.as_view(), name="task_list"),
+
     path('create_enter/', views.EnterCreateView.as_view(), name="create_enter"),
     path('update_enter/<int:pk>/', views.EnterUpdateView.as_view(), name='update_enter'),
     path('read_enter/<int:pk>/', views.EnterReadView.as_view(), name='read_enter'),
     path('delete_enter/<int:pk>/', views.EnterDeleteView.as_view(), name='delete_enter'),
+
     path('apply_enter_info/', views.apply_enter_info, name='apply_enter_info'),
 
 
