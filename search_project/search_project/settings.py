@@ -9,9 +9,11 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
+from datetime import timedelta
 import os
 import json
 from pathlib import Path
+from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -29,6 +31,7 @@ def get_secret(setting, secrets=secrets):
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
+
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = get_secret("SECRET_KEY")
@@ -52,11 +55,14 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'search_app',
     'accounts',
-    'django_crontab',
-    'rest_framework',
+
     'debug_toolbar',
+    'rest_framework',
+
     'bootstrap_modal_forms',
     'widget_tweaks',
+
+    'django_crontab',
     'django_celery_results',
     'django_celery_beat',
 
@@ -170,10 +176,14 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGOUT_REDIRECT_URL = 'search_app:search_job'
 
+# BACKEND = [
+#     'django.core.cache.backends.memcached.PyMemcacheCache',
+# ]
+
 # Celery
 CELERY_ALWAYS_EAGER = True
-CELERY_BROKER_URL = 'redis://localhost:6379'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379'
+CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379'
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60
 CELERY_ACCEPT_CONTENT = ['application/json']
@@ -181,12 +191,24 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Asia/Seoul'
 
+
+# celery setting.
+CELERY_CACHE_BACKEND = 'default'
+
 # django setting.
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-        'LOCATION': 'my_cache_table',
-    }
+        'BACKEND': 'djpymemcache.backend.PyMemcacheCache',
+        'LOCATION': [
+            '127.0.0.1:11211',
+        ],
+        'OPTIONS': {
+            'no_delay': True,
+            'ignore_exc': True,
+            'max_pool_size': 4,
+            'use_pooling': True,
+        }
+    },
 }
 
 SCHEDULE_MINUTE = 60
@@ -194,12 +216,24 @@ SCHEDULE_HOUR = 60 * SCHEDULE_MINUTE
 SCHEDULE_DAY = 24 * SCHEDULE_HOUR
 SCHEDULE_WEEK = 7 * SCHEDULE_DAY
 SCHEDULE_MONTH = 30 * SCHEDULE_DAY
-
 CELERY_BEAT_SCHEDULE = {
-    'crwaling_enter_info': {
-        'task': 'app.tasks.crwaling_enter_info',
-        'schedule': 5 * SCHEDULE_MINUTE,
+    'today_request_delete': {
+        'task': 'app.tasks.today_request_delete',
+        'schedule': 10.0
         # 'schedule': 2.0,
         # 'args': (4, 4)
-    }
+    },
+    # 'today_request_delete': {
+    #     'task': 'app.tasks.today_request_delete',
+    #     'schedule': crontab(hour='0',
+    #                         minute=0),
+    #     # 'schedule': 2.0,
+    #     # 'args': (4, 4)
+    # }
+    'say_hello': {
+        'task': 'app.tasks.say_hello',
+        'schedule': 10.0
+        # 'schedule': 2.0,
+        # 'args': (4, 4)
+    },
 }
