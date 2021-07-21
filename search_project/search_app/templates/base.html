@@ -46,7 +46,15 @@
 {% include 'request_enter_info_modal.html' %}
 
 <header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
-    <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="{% url 'search_app:search_job' %}">Share Company Info</a>
+    <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="{% url 'search_app:search_job' %}" id="input-search">Share Company Info</a>
+    <script>
+    $("#input-search").on("keyup",function(key){
+                console.log(key)
+                if(key.keyCode==13) {
+                    alert("엔터키 이벤트");
+                }
+            });
+            </script>
     <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse"
             data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false"
             aria-label="Toggle navigation">
@@ -63,40 +71,17 @@
         </ul>
     </div>
 
-    <form action="{% url 'search_app:search_job' %}" method="get" class="w-100">
+    <form action="{% url 'search_app:search_job' %}" method="get" class="w-100" id="search_form">
         <input class="form-control form-control-dark w-100" type="text" placeholder="공고 검색" aria-label="Search"
                name="search_job" id="search_text" value="{{ request.GET.search_job }}">
         <input type="hidden" name="page" value="1">
     </form>
-    <script>
-        $(document).ready(function(){
-            $(".dropdown-menu li").click(function() {
-                  var text = $(this).text()
-                  switch(text) {
-                    case '공고검색(사람인)':
-                        $("#search_text").attr('placeholder','공고 검색');
-                        $("#search_text").attr('name','search_job');
-                        $("#search_text").attr('value','{{request.GET.search_job}}');
-                        break;
-                    case '기업검색':
-                        $("#search_text").attr('placeholder','기업 검색');
-                        $("#search_text").attr('name','search_company');
-                        $("#search_text").attr('value','{{request.GET.search_company}}');
-                        break;
-                    default:
-                        $("#search_text").attr('placeholder','공고 검색');
-                        $("#search_text").attr('name','search_job');
-                    }
-            });
-
-        });
-    </script>
-
 
     <ul class="navbar-nav">
         {% if request.user.is_authenticated %}
-        <li class="nav-item text-nowrap"><a href="{% url 'accounts:logout' %}" id="Logout-btn" class="nav-link px-3"
-                                            name="button">Logout</a></li>
+        <li class="nav-item text-nowrap">
+        <a href="{% url 'accounts:logout' %}" id="Logout-btn" class="nav-link px-3"name="button">Logout</a>
+        </li>
 <!--        <li class="nav-item text-nowrap"><a id="profile-btn" class="nav-link px-3" type="button"-->
 <!--                                            name="button">Profile</a></li>-->
         {% else %}
@@ -107,11 +92,22 @@
         {% endif %}
     </ul>
 <!--  알람창(일단 크롤링 신청건만 사용중)  -->
-    <div id="position-relative">
-        <div class="alert-box position-absolute top-0 start-50 translate-middle-x" id="alert-box"></div>
+</header>
+   <div id="position-relative">
+        <div class="position-absolute top-0 start-50 translate-middle-x">
+            {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                <li
+                        {% if message.tags %} class="alert alert-{{ message.tags }}" {% endif %}>{{ message }}
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            <div class="alert-box" id="alert-box"></div>
+        </div>
     </div>
 
-</header>
 <div class="container-fluid">
     <div class="row">
         <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
@@ -174,9 +170,22 @@
                                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                                 <circle cx="9" cy="7" r="4"></circle>
                                 <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                             </svg>
                             크롤링된 기업정보
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'search_app:task_list' %}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round" class="feather feather-users" aria-hidden="true">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                            크롤링 작동 정보
                         </a>
                     </li>
                 </ul>
@@ -185,14 +194,6 @@
         </nav>
 
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-            <div class="chartjs-size-monitor">
-                <div class="chartjs-size-monitor-expand">
-                    <div class=""></div>
-                </div>
-                <div class="chartjs-size-monitor-shrink">
-                    <div class=""></div>
-                </div>
-            </div>
                 {% block content %}
                 {% endblock %}
 
@@ -210,6 +211,42 @@
             // Log in button
             $("#login_required").modalForm({
                 formURL: "{% url 'accounts:login' %}"
+            });
+            let searchParams = new URLSearchParams(window.location.search);
+            if (searchParams.has('search_job')){
+                $("#dropdownMenuLink").text('공고검색');
+                $("#search_text").attr('name','search_job');
+                $("#search_text").attr('value','{{request.GET.search_job}}');
+                $("#search_form").attr('action','{% url 'search_app:search_job' %}');
+                
+            }else if (searchParams.has('search_company')){
+                $("#dropdownMenuLink").text('기업검색');
+                $("#search_text").attr('name','search_company');
+                $("#search_text").attr('value','{{request.GET.search_company}}');
+                $("#search_form").attr('action','{% url 'search_app:search_company' %}');
+            }
+            $(".dropdown-menu li").click(function() {
+                  var text = $(this).text()
+                  switch(text) {
+                    case '공고검색(사람인)':
+                        $("#search_text").attr('placeholder','공고 검색');
+                        $("#search_text").attr('name','search_job');
+                        $("#search_text").attr('value','{{request.GET.search_job}}');
+                        $("#search_form").attr('action','{% url 'search_app:search_job' %}');
+                        $("#dropdownMenuLink").text('공고검색')
+                        break;
+                    case '기업검색':
+                        $("#search_text").attr('placeholder','기업 검색(이전에 크롤링된, 중복된 모든 기업을 검색합니다)');
+                        $("#search_text").attr('name','search_company');
+                        $("#search_text").attr('value','{{request.GET.search_company}}');
+                        $("#search_form").attr('action','{% url 'search_app:search_company' %}');
+                        $("#dropdownMenuLink").text('기업검색')
+                        break;
+                    default:
+                        $("#search_text").attr('placeholder','공고 검색');
+                        $("#search_text").attr('name','search_job');
+                        $("#search_form").attr('action','{% url 'search_app:search_job' %}');
+                    }
             });
           });
           $(function () {
