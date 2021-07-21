@@ -47,10 +47,13 @@ class GetJobKoreaInfo:
         driver = selenium_setting()
         href = ""
         company_code = ""
+        location = ""
         company_name = company_name.replace(' ', '').replace('\n', '').lstrip('(주)').rstrip('(주)')
         if self.company_url == "":
             URL = "https://www.jobkorea.co.kr/Search/?stext=" + company_name + "&tabType=corp&Page_No=1"
             href = self.get_company_url(URL, driver, company_name)
+            if not href:
+                return location
             company_code = href.split('/')[-1]
             company_url = href + "?tabType=I"
             driver.get(company_url)
@@ -82,7 +85,7 @@ class GetJobKoreaInfo:
             print("잡코리아 캡처 실패")
 
         # 주소찾기
-        location = ""
+        
         try:
             for index, value in enumerate(th):
                 print(index, value.text)
