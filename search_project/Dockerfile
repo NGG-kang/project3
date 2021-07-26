@@ -1,11 +1,44 @@
 FROM python:3
-ENV PYTHONBUFFERED 1
-ENV DJANGO_SETTINGS_MODULE=video.settings.settings_prod
-WORKDIR /backend
-ADD secrets.json /
-ADD CustomS3Boto3Storage.py /
-COPY . /backend/
-RUN pip install -r requirements.txt
-CMD ["gunicorn", "video.wsgi:application", "--bind", "0.0.0.0:8000"]
-EXPOSE 8000
 
+RUN python3 -m pip install --upgrade pip 
+RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
+RUN sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list'
+RUN apt-get -y update
+RUN apt-get install -y google-chrome-stable
+
+RUN apt-get install -yqq unzip
+RUN wget -O /tmp/chromedriver.zip http://chromedriver.storage.googleapis.com/`curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE`/chromedriver_linux64.zip
+RUN unzip /tmp/chromedriver.zip chromedriver -d /usr/local/bin/
+
+# 크롬 글자 깨짐 방지 한글 폰트 설치
+# 폰트 설치 경로로 이동합니다.
+RUN apt-get install fonts-noto-cjk
+RUN apt-get install fonts-nanum
+RUN apt-get clean
+# RUN cd /usr/share/fonts/
+# # 나눔고딕 폰트 파일을 다운로드합니다.
+# RUN wget http://cdn.naver.com/naver/NanumFont/fontfiles/NanumFont_TTF_ALL.zip
+# # 나눔고딕 폰트 파일의 압축을 해제합니다.
+# RUN unzip NanumFont_TTF_ALL.zip -d NanumFont
+# # 사용이 끝난 압축파일을 삭제합니다.
+# RUN rm -f NanumFont_TTF_ALL.zip
+# # 시스템 폰트 리스트를 갱신합니다.
+RUN fc-cache -r
+
+ENV DISPLAY=:99
+ENV PYTHONBUFFERED 1
+ENV DJANGO_SETTINGS_MODULE=search_project.settings.prod
+
+WORKDIR /project3
+ADD secrets.json /
+ADD django-bootstrap-modal-forms-2.2.0 /
+ADD CustomS3Boto3Storage.py /
+ADD requirements.txt /
+COPY . / 
+RUN python /django-bootstrap-modal-forms-2.2.0/setup.py install
+RUN pip3 install -r /requirements.txt
+
+
+CMD ["gunicorn", "search_project.wsgi:application", "--bind", "0.0.0.0:8000"]
+# CMD ["python", "manage.py", "runserver"]
+EXPOSE 8000
