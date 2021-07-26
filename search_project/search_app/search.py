@@ -56,6 +56,7 @@ def SearchJob(context, page, search_job):
                 context = {}
                 id = i.get('id', 'null')
                 company = i.select_one('div > div.col.company_nm > a > span').text
+                company = company.replace(' ', '').replace('\n', '').lstrip('(주)').rstrip('(주)').strip().split('(')[0]
                 href = i.select_one('div > div.col.company_nm > a').attrs['href']
                 title = i.select_one('div > div.col.notification_info > div.job_tit > a > span').text
                 career = i.select_one('div > div.col.recruit_condition > p.career').text
