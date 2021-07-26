@@ -20,10 +20,15 @@ python manage.py runserver --insecure
 # 기본 시작 명령어
 python manage.py runserver --insecure
 celery -A search_project worker -Q crwaling_enter_info -l info -P gevent --concurrency=1
+celery -A search_project worker -Q test_queue -l info -P gevent --concurrency=1
 celery -A search_project flower --broker_api=redis://guest:guest@localhost:6379/0
 celery -A search_project beat -l info
+celery -A search_project beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler
 
 # memcache 시작
 c:\> schtasks /create /sc onstart /tn memcached /tr "'c:\memcached\memcached.exe' -m 512"
 c:\> schtasks /delete /tn memcached
-netstat -an
+netstat -an 
+
+
+gunicorn search_project.wsgi:application --bind 0.0.0.0:8000
