@@ -153,13 +153,17 @@ class KreditJobInfo(CrwalingBaseModel):
 # 경로: 회사이름 -> 크롤링회사 -> 코드 -> 날짜
 # 이미지이름: 회사이름_회사코드_기타내용.png
 def crwaling_photo_path(instance, filename):
-    if instance.jobkorea_info:
-        return '{0}/{1}'.format(instance.jobkorea_info.upload_to_path, filename)
-    elif instance.saramin_info:
+    if instance.saramin_info:
+        print(instance.saramin_info.upload_to_path)
         return '{0}/{1}'.format(instance.saramin_info.upload_to_path, filename)
+    elif instance.jobkorea_info:
+        print(instance.jobkorea_info.upload_to_path)
+        return '{0}/{1}'.format(instance.jobkorea_info.upload_to_path, filename)
     elif instance.jobplanet_info:
+        print(instance.jobplanet_info.upload_to_path)
         return '{0}/{1}'.format(instance.jobplanet_info.upload_to_path, filename)
     elif instance.kreditjob_info:
+        print(instance.kreditjob_info.upload_to_path)
         return '{0}/{1}'.format(instance.kreditjob_info.upload_to_path, filename)
 
 class CrwalingPhotos(TimeModel):
