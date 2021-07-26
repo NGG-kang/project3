@@ -37,7 +37,11 @@
             <td>{{ values.started|timestamp_to_date }}</td>
             <td>{{ values.succeeded|timestamp_to_date }}</td>
             {{ values.kwargs|unpack_kwargs }}
-            <td>{{ values.runtime|intcomma }}초</td>
+            {% if values.runtime != None %}
+            <td>{{values.runtime}}초</td>
+            {% else %}
+            <td>실패</td>
+            {% endif %}
         </tr>
         {% endfor %}
         
