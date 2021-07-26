@@ -6,6 +6,7 @@
     <meta charset="UTF-8">
     <title>Index</title>
      <script src="https://unpkg.com/htmx.org@1.4.1"></script>
+     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 
     <link rel="stylesheet" href="{% static 'bootstrap-5.0.2-dist/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'bootstrap-4.6.0-dist/css/bootstrap.min.css' %}">
@@ -36,6 +37,7 @@
 <script src="{% static 'bootstrap-4.6.0-dist/js/bootstrap.min.js' %}"></script>
 <script src="{% static 'bootstrap-5.0.2-dist/js/bootstrap.min.js' %}"></script>
 <script src="{% static 'js/jquery.bootstrap.modal.forms.min.js' %}"></script>
+
 <!--기본 modal-->
 <div class="modal fade" tabindex="-1" role="dialog" id="modal">
     <div class="modal-dialog modal-dialog-scrollable modal-xl" role="document">
@@ -47,14 +49,6 @@
 
 <header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
     <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="{% url 'search_app:search_job' %}" id="input-search">Share Company Info</a>
-    <script>
-    $("#input-search").on("keyup",function(key){
-                console.log(key)
-                if(key.keyCode==13) {
-                    alert("엔터키 이벤트");
-                }
-            });
-            </script>
     <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse"
             data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false"
             aria-label="Toggle navigation">
@@ -66,24 +60,23 @@
             검색 선택
         </a>
         <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-            <li><a class="dropdown-item" href="#search_job">공고검색(사람인)</a></li>
+            <li><a class="dropdown-item" href="#search_job">공고검색</a></li>
             <li><a class="dropdown-item" href="#search_company">기업검색</a></li>
         </ul>
     </div>
 
-    <form action="{% url 'search_app:search_job' %}" method="get" class="w-100" id="search_form">
-        <input class="form-control form-control-dark w-100" type="text" placeholder="공고 검색" aria-label="Search"
-               name="search_job" id="search_text" value="{{ request.GET.search_job }}">
+    <form action="{% url 'search_app:search_job_context' %}" method="get" class="w-100" id="search_form">
+        <input class="form-control form-control-dark w-100" type="text" placeholder="공고 검색(사람인)" aria-label="Search"
+               name="search_job" id="search_text" value="{{ request.GET.search_job_context }}">
         <input type="hidden" name="page" value="1">
     </form>
+    
 
     <ul class="navbar-nav">
         {% if request.user.is_authenticated %}
         <li class="nav-item text-nowrap">
         <a href="{% url 'accounts:logout' %}" id="Logout-btn" class="nav-link px-3"name="button">Logout</a>
         </li>
-<!--        <li class="nav-item text-nowrap"><a id="profile-btn" class="nav-link px-3" type="button"-->
-<!--                                            name="button">Profile</a></li>-->
         {% else %}
         <li class="nav-item text-nowrap"><a id="login-btn" class="nav-link px-3" type="button" name="button">Login</a>
         </li>
@@ -148,20 +141,6 @@
                             내가 쓴 기업정보
                         </a>
                     </li>
-                    {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" id="login_required" type="button" name="button">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                 stroke-linejoin="round" class="feather feather-shopping-cart" aria-hidden="true">
-                                <circle cx="9" cy="21" r="1"></circle>
-                                <circle cx="20" cy="21" r="1"></circle>
-                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                            </svg>
-                            내가 쓴 기업정보
-                        </a>
-                    </li>
-                    {% endif %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'search_app:crwaling_info' %}">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
@@ -188,15 +167,59 @@
                             크롤링 작동 정보
                         </a>
                     </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link login_required" type="button" name="button">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round" class="feather feather-shopping-cart" aria-hidden="true">
+                                <circle cx="9" cy="21" r="1"></circle>
+                                <circle cx="20" cy="21" r="1"></circle>
+                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                            </svg>
+                            내가 쓴 기업정보
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link login_required" type="button" name="button">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round" class="feather feather-users" aria-hidden="true">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                            크롤링된 기업정보
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link login_required" type="button" name="button">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round" class="feather feather-users" aria-hidden="true">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                            크롤링 작동 정보
+                        </a>
+                    </li>
+                    {% endif %}
+
                 </ul>
 
             </div>
         </nav>
 
-        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4" id="main">
+        <div class="d-flex justify-content-center" id="spinner"></div>
+                <div id="content_all">
+                
                 {% block content %}
                 {% endblock %}
-
+                </div>
         </main>
     </div>
 </div>
@@ -209,45 +232,64 @@
           });
           $(document).ready(function () {
             // Log in button
-            $("#login_required").modalForm({
+            $(".login_required").modalForm({
                 formURL: "{% url 'accounts:login' %}"
             });
+            {% comment %} URL 정보를 가져온다 {% endcomment %}
             let searchParams = new URLSearchParams(window.location.search);
             if (searchParams.has('search_job')){
-                $("#dropdownMenuLink").text('공고검색');
+                $("#dropdownMenuLink").text('공고 검색(사람인)');
                 $("#search_text").attr('name','search_job');
                 $("#search_text").attr('value','{{request.GET.search_job}}');
-                $("#search_form").attr('action','{% url 'search_app:search_job' %}');
+                $("#search_form").attr('action','{% url 'search_app:search_job_context' %}');
                 
             }else if (searchParams.has('search_company')){
                 $("#dropdownMenuLink").text('기업검색');
                 $("#search_text").attr('name','search_company');
                 $("#search_text").attr('value','{{request.GET.search_company}}');
-                $("#search_form").attr('action','{% url 'search_app:search_company' %}');
+                $("#search_form").attr('action','{% url 'search_app:search_company_context' %}');
             }
             $(".dropdown-menu li").click(function() {
                   var text = $(this).text()
                   switch(text) {
-                    case '공고검색(사람인)':
+                    case '공고검색':
                         $("#search_text").attr('placeholder','공고 검색');
                         $("#search_text").attr('name','search_job');
                         $("#search_text").attr('value','{{request.GET.search_job}}');
-                        $("#search_form").attr('action','{% url 'search_app:search_job' %}');
-                        $("#dropdownMenuLink").text('공고검색')
+                        $("#search_form").attr('action','{% url 'search_app:search_job_context' %}');
+                        $("#dropdownMenuLink").text('공고 검색(사람인)')
                         break;
                     case '기업검색':
                         $("#search_text").attr('placeholder','기업 검색(이전에 크롤링된, 중복된 모든 기업을 검색합니다)');
                         $("#search_text").attr('name','search_company');
                         $("#search_text").attr('value','{{request.GET.search_company}}');
-                        $("#search_form").attr('action','{% url 'search_app:search_company' %}');
+                        $("#search_form").attr('action','{% url 'search_app:search_company_context' %}');
                         $("#dropdownMenuLink").text('기업검색')
                         break;
                     default:
                         $("#search_text").attr('placeholder','공고 검색');
                         $("#search_text").attr('name','search_job');
-                        $("#search_form").attr('action','{% url 'search_app:search_job' %}');
+                        $("#search_form").attr('action','{% url 'search_app:search_job_context' %}');
                     }
             });
+            var originalTitle=document.title
+            function hashChange(){
+                var page=location.hash.slice(1)
+                if (page!=""){
+                    $('#content').load(page+".html #sub-content")
+                    document.title=originalTitle+' – '+page
+                }
+            }
+            if ("onhashchange" in window){ // cool browser
+                $(window).on('hashchange',hashChange).trigger('hashchange')
+            }else{ // lame browser
+                var lastHash=''
+                setInterval(function(){
+                    if (lastHash!=location.hash)
+                        hashChange()
+                    lastHash=location.hash
+                },100)
+            }
           });
           $(function () {
             // Sign up button
@@ -261,8 +303,90 @@
                 formURL: "{% url 'accounts:profile' %}"
             });
           });
+          
+          $("#search_form").on("submit", function (e) {
+            e.preventDefault();
+            $.ajax({
+                url: this.action,
+                type: $(this).attr("method"),
+                data: $("#search_form").serialize(),
+                beforeSend: function() {
+                    {% comment %} window.onpopstate = function(event) {
+                    alert(`location: ${document.location}, state: ${JSON.stringify(event.state)}`)
+                    } {% endcomment %}
+                    var search = $("#search_form").serialize()
+                    var searchArray = $("#search_form").serializeArray()
+                    var saerch_query = searchArray[1]
+                    var page = searchArray[0]
+                    var search_state = {"search_job" : saerch_query['value'], "name": page['value']}
+                    const title = ''
+                    console.log(search, searchArray)
+                    window.history.pushState(search_state, title, "/search_job?"+search);
+                    var originalTitle=document.title
+                    function hashChange(){
+                        var page=location.hash.slice(1)
+                        if (page!=""){
+                            $('#content').load(page+".html #sub-content")
+                            document.title=originalTitle+' – '+page
+                        }
+                    }
+                    if ("onhashchange" in window){ // cool browser
+                        $(window).on('hashchange',hashChange).trigger('hashchange')
+                    }else{ // lame browser
+                        var lastHash=''
+                        setInterval(function(){
+                            if (lastHash!=location.hash)
+                                hashChange()
+                            lastHash=location.hash
+                        },100)
+                    }
+                    hashChange();
+                    $("#spinner").addClass("mt-5").append(
+                        $("<div/>")
+                        .attr("role", "alert")
+                        .attr("style", "width: 3rem; height: 3rem;")
+                        .addClass("spinner-border")
+                        .append(
+                            $("<span/>")
+                            .addClass("visually-hidden")
+                            .text("Loading...")
+                        )
+                    )
+                },
+                complete: function() {
+                    $("#spinner").removeClass("mt-5")
+                },
+                success: function (data) {
+                    $(".spinner-border").remove()
+                    $(".table-responsive").remove()
+                    $("#content_all").remove()
+                    $("#content_header").remove()
+                    $("main").append(data)
+                    
+                },
+                error: function (response) {
+                console.log(response.status);
+                $(".alert-box").append(
+                    $("<div/>")
+                    .attr("role", "alert")
+                    .addClass("alert alert-warning alert-dismissible fade show")
+                    .text("너무 많은 요청을 했습니다.")
+                    .append(
+                        $("<button/>")
+                        .attr("type", "button")
+                        .attr("data-bs-dismiss", "alert")
+                        .attr("aria-label", "Close")
+                        .addClass("btn-close")
+                    )
+                );
+                $(".spinner-border").remove()
+                },
+            })
+            .done(function(json) {    
+            });
+            });
 
-
+            
 </script>
 </body>
 </html>
