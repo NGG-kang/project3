@@ -1,6 +1,8 @@
 # views.py
 import ast
 import json
+from django.conf import settings
+from django.http.response import JsonResponse
 import requests
 import operator
 
@@ -8,6 +10,7 @@ from django.db.models.expressions import Subquery
 from search_app.search import SearchJob
 
 import httpx
+import logging
 from asgiref.sync import sync_to_async
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -31,7 +34,7 @@ from .forms import MyEnterpriseForm
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import HTTP_HEADER_ENCODING, status
 
 from .models import Post, Comment, MyEnterprise, MyEnterPhoto, CrwalingModel, SaraminInfo, JobKoreaInfo, JobPlanetInfo, KreditJobInfo, CrwalingPhotos
 from .Serailizer import PostSerializer, CommentSerializer
@@ -41,7 +44,7 @@ from search_app.tasks import crwaling_enter_info
 from celery.result import ResultBase
 from search_project.celery import app
 from django.core.cache import cache
-
+logger = logging.getLogger(__name__)
 
 class SearchView(APIView):
 
@@ -80,8 +83,9 @@ class CommentView(ModelViewSet):
     def create(self, request, *args, **kwargs):
         pass
 
-
+# search_job page 이동시에 쓰임
 class SearchJobTemplateView(TemplateView):
+    template_name="search_job.html"
 
     def get(self, request, *args, **kwargs):
         search_job = request.GET.get("search_job")
@@ -90,12 +94,22 @@ class SearchJobTemplateView(TemplateView):
             page = request.GET.get('page')
             if not page:
                 page = "1"
-            # context = search_job_task.delay(context, page, search_job)
-            # print(context.get())
-            # context = json.loads(context.get())
-            # print(context)
             context = SearchJob(context, page, search_job)
         return render(template_name="search_job.html", context=context, request=request)
+
+# search_job 검색시 ajax용도 그냥 함수로 구현해도 되는데 ㅎㅎ;;
+class SearchBodyTemplateView(TemplateView):
+    template_name = "search_job.html"
+
+    def get(self, request, *args, **kwargs):
+        search_job = request.GET.get("search_job")
+        context = self.get_context_data(**kwargs)
+        if search_job:
+            page = request.GET.get('page')
+            if not page:
+                page = "1"
+            context = SearchJob(context, page, search_job)
+        return render(template_name="search_body.html", context=context, request=request)
 
 
 # 크롤링된 기업들 검색
@@ -108,8 +122,23 @@ class SearchCompanyListView(LoginRequiredMixin, generic.ListView):
 
     def get(self, request, *args, **kwargs):
         company_name = self.request.GET.get('search_company')
+        logger.info(company_name)
         self.object_list = self.get_queryset().filter(enter_name__contains=company_name)
+        context = self.get_context_data()
+        return self.render_to_response(context)
 
+
+class SearchCompanyBodyListView(LoginRequiredMixin, generic.ListView):
+    template_name = 'crawling_info_list_body.html'
+    model = CrwalingModel
+    queryset = CrwalingModel.objects.all()
+    context_object_name = "crawling"
+    paginate_by = 50
+
+    def get(self, request, *args, **kwargs):
+        company_name = self.request.GET.get('search_company')
+        logger.info(company_name)
+        self.object_list = self.get_queryset().filter(enter_name__contains=company_name)
         context = self.get_context_data()
         return self.render_to_response(context)
 
@@ -117,7 +146,12 @@ class SearchCompanyListView(LoginRequiredMixin, generic.ListView):
 class TaskTemplateView(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        tasks_url = 'http://127.0.0.1:5555/api/tasks'
+        tasks_url = 'http://localhost:5555/api/tasks'
+        # if settings.debug == "True":
+        #     tasks_url = 'http://127.0.0.1:5555/api/tasks'
+        # else:
+        #     tasks_url = 'http://host.docker.internal:5555/api/tasks'
+        logger.info(tasks_url)
         res = requests.get(tasks_url).text
         task = json.loads(res)
         return render(template_name="task_view.html", context={'task': sorted(task.items())}, request=request)
@@ -135,8 +169,9 @@ class EnterCreateView(BSModalCreateView):
     success_message = '메모 생성 성공'
 
     def form_valid(self, form):
+        logger.info("하는거 맞니?")
+        logger.info("생성 확인중")
         form.instance.author = self.request.user
-
         return super(EnterCreateView, self).form_valid(form)
 
     def get_success_url(self):
@@ -216,40 +251,64 @@ class GetUserEnterInfoDetail(LoginRequiredMixin, generic.DetailView):
 # TODO: celery 넘어가기 전에 하루 request 500번 미만 체크
 # TODO: 여러 요청해도 한개의 크롤링만 돌아가도록
 def apply_enter_info(request):
+    logger.info("크롤링 리퀘스트 들어옴")
     if request.method == "POST":
         try:
             company_name, company_link = request.POST.get(
                 "company_name"), request.POST.get("company_link")
-            print("시작")
-            print(company_name, company_link)
+            logger.info("시작")
+            logger.info(company_name, company_link)
+            try:
+                cache_val = cache.get('today_request', 0)
+                if not cache_val:
+                    cache.set('today_request', 0)
+                # 일단 오늘 리퀘스트 올려놓고
+                cache.incr('today_request')
+                logger.info(cache.get('today_request'))
 
-            cache.get_or_set('today_request', 0)
-            # 일단 오늘 리퀘스트 올려놓고
-            cache.incr('today_request')
-            print(cache.get('today_request'))
-
-            # 만약 500건이 넘었다면 취소
-            if cache.get('today_request') >= 500:
-                cache.decr('today_request')
-                messages.warning(request, '하루 최대 크롤링 요청에 도달했습니다. 내일 다시 신청이 가능합니다. (하루 최대 500건)')
-                return HttpResponse(status=400)
-            # 아니라면 줄여놓고 크롤링 끝내고 다시 올려놓기
-            else:
-                print('500건 미만, 크롤링 시작합니다.')
-                # cache.decr('today_request')
-                print(cache.get('today_request'))
+                # 만약 500건이 넘었다면 취소
+                if cache.get('today_request') >= 500:
+                    cache.decr('today_request')
+                    messages.warning(request, '하루 최대 크롤링 요청에 도달했습니다. 내일 다시 신청이 가능합니다. (하루 최대 500건)')
+                    return HttpResponse(status=400)
+                # 아니라면 줄여놓고 크롤링 끝내고 다시 올려놓기
+                else:
+                    logger.info('500건 미만, 크롤링 시작합니다.')
+                    cache.decr('today_request')
+                    logger.info(cache.get('today_request'))
+            except Exception as e:
+                logger.warning(e)
+                logger.warning("캐시부분 에러")
+                messages.warning(request, '캐시부분 서버에 에러가 있습니다. 제작자에게 문의 해주세요')
+                return HttpResponse(status=500)
+            try:
                 # delay에 queue를 넣는 방법이 있나?
                 # crwaling_enter_info.delay(company_name=company_name, url=company_link)
                 crwaling_enter_info.apply_async(kwargs={"company_name": company_name, "url": company_link}, countdown=1, queue='crwaling_enter_info')
+            except Exception as e:
+                logger.warnin(e)
+                logger.warning("크롤링 부분 에러")
+                return HttpResponse(status=500)
             
-
             # 메세지는 스택처럼 쌓여서 나중에 한번에 보일수 있음.
             messages.success(request, '크롤링 신청 완료.')
-            return HttpResponse(status=200)
+            return HttpResponse(status=204)
 
         except Exception as e:
-            print(e)
+            logger.info(e)
+            logger.info("중간에 에러 발생")
             return HttpResponse(status=500)
+
+
+def is_company(request):
+    if request.method == "GET":
+        company_name = request.GET.get('company_name')
+        logger.info(company_name)
+        object = CrwalingModel.objects.get(company_name=company_name)
+        if object:
+            return HttpResponse(status=200)
+    return HttpResponse(status=400)
+
 
 
 # 크롤링된 기업들 전부 보여주는 페이지
@@ -263,6 +322,9 @@ class CrawlingInfoList(LoginRequiredMixin, generic.ListView):
         queryset = CrwalingModel.objects.order_by('enter_name','-created_at').distinct('enter_name')
         queryset = sorted(queryset, key=operator.attrgetter('created_at'), reverse=True)
         return queryset
+
+
+
 
 
 
