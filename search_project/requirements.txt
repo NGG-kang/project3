@@ -1,0 +1,51 @@
+# django
+django
+pillow
+djangorestframework
+django_debug_toolbar
+
+# cache
+pymemcache
+django-pymemcache
+django-redis
+
+# bootstrap_modal_forms / python setup.py install
+# django-bootstrap-modal-forms
+django-widget-tweaks
+
+# db
+psycopg2
+
+# runserver
+gunicorn
+
+# s3
+django-storages
+boto3
+
+# crawling
+beautifulsoup4
+lxml
+selenium
+chromedriver-autoinstaller
+requests
+
+# celery
+celery[redis]
+django-celery-results
+django-celery-beat
+gevent
+redis
+
+# celery view
+flower
+
+# async view but not used
+uvicorn
+httpx
+
+# not used
+elasticsearch
+mitmproxy
+djongo
+django_crontab
