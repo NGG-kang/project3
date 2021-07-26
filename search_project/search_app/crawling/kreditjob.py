@@ -4,6 +4,7 @@ import time
 import os
 from pathlib import Path
 from bs4 import BeautifulSoup
+from django.conf import settings
 from django.core.files.images import ImageFile
 
 from search_app.crawling.crawlselenium import selenium_setting
@@ -121,9 +122,14 @@ class GetKreditJobInfo:
         url = driver.current_url
 
         company_code = url.split("/")[-1]
-        path = os.path.join(
-            self.BASE_DIR) + '/media/search_job/' + company_name + '/kreditjob/' + company_code + time.strftime(
-            "/%Y/%m/%d/")
+        if settings.DEBUG:
+            path = os.path.join(
+                self.BASE_DIR) + '/media/search_job/' + company_name + '/kreditjob/' + time.strftime(
+                "/%Y/%m/%d/")
+        else:
+            path = os.path.join(
+                self.BASE_DIR).lstrip('/') + '/media/search_job/' + company_name + '/kreditjob/' + time.strftime(
+                "%Y/%m/%d/")
         print(url)
         try:
             # 모든 컨텐츠 캡쳐

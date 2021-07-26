@@ -4,6 +4,7 @@ import time
 import os
 from pathlib import Path
 from bs4 import BeautifulSoup
+from django.conf import settings
 from django.core.files.images import ImageFile
 
 from search_app.crawling.crawlselenium import selenium_setting
@@ -63,7 +64,13 @@ class GetSaraminEnterInfo:
             company_name = self.company_name
             company_url = self.company_url
         company_name = company_name.rstrip('(주)').lstrip('(주)')
-        path = os.path.join(BASE_DIR) + '/media/search_job/'+company_name+'/saramin/' + time.strftime("/%Y/%m/%d/")
+        
+        if settings.DEBUG:
+            path = os.path.join(BASE_DIR) + '/media/search_job/'+company_name+'/saramin/' + time.strftime("/%Y/%m/%d/")
+        else:
+            path = os.path.join(BASE_DIR).lstrip('/') + '/media/search_job/'+company_name+'/saramin/' + time.strftime("%Y/%m/%d")
+
+            # path = 'media/search_job/'+company_name+'/saramin/' + time.strftime("%Y/%m/%d/")
         company_name = company_name.rstrip('(주)').lstrip('(주)')
 
         # 1. 기업소개 -> 인재채용 -> 연봉정보 -> 재무정보 이 순으로 셀레니움 돌자
@@ -114,14 +121,20 @@ class GetSaraminEnterInfo:
                     element = driver.find_element_by_class_name("box_company_view.company_intro")
                 except:
                     pass
+            print("최대 길이값 찾고")
             total_height = element.size['height'] + 1000
+            print("윈도우 사이즈 늘리기")
             driver.set_window_size(1920, total_height)
             time.sleep(1)
+            print("스크린샷")
             screenshot1 = element.screenshot_as_png
-            image1 = ImageFile(io.BytesIO(screenshot1), name=company_name + '_company_info.png')
-            # pathlib.Path(path).mkdir(parents=True, exist_ok=True)
-            # with open(path + company_name + company_csn + '_company_info.png', 'wb') as f:
-            #     f.write(screenshot1)
+            print("스크린샷 성공, 이미지 파일로 변환")
+            image1 = ImageFile(io.BytesIO(screenshot1), name="company_name" + '_company_info.png')
+            print(image1)
+            print("성공")
+            pathlib.Path(path).mkdir(parents=True, exist_ok=True)
+            with open(path + company_name + company_csn + '_company_info.png', 'wb') as f:
+                f.write(screenshot1)
 
         except Exception as e:
             print(e)
@@ -151,9 +164,9 @@ class GetSaraminEnterInfo:
             time.sleep(1)
             screenshot2 = element.screenshot_as_png
             image2 = ImageFile(io.BytesIO(screenshot2), name=company_name + '_company_info_salary.png')
-            # pathlib.Path(path).mkdir(parents=True, exist_ok=True)
-            # with open(path + company_name + company_csn + '_company_info_salary.png', 'wb') as f:
-            #     f.write(screenshot)
+            pathlib.Path(path).mkdir(parents=True, exist_ok=True)
+            with open(path + company_name + company_csn + '_company_info_salary.png', 'wb') as f:
+                f.write(screenshot2)
             # html = driver.page_source
             # if html:
             #     soup = BeautifulSoup(html, 'lxml')
@@ -174,9 +187,9 @@ class GetSaraminEnterInfo:
             time.sleep(1)
             screenshot3 = element.screenshot_as_png
             image3 = ImageFile(io.BytesIO(screenshot3), name=company_name + '_company_info_finance.png')
-            # pathlib.Path(path).mkdir(parents=True, exist_ok=True)
-            # with open(path + company_name + company_csn + '_company_info_finance.png', 'wb') as f:
-            #     f.write(screenshot)
+            pathlib.Path(path).mkdir(parents=True, exist_ok=True)
+            with open(path + company_name + company_csn + '_company_info_finance.png', 'wb') as f:
+                f.write(screenshot3)
             # pass
             # html = driver.page_source
             # if html:

@@ -5,6 +5,7 @@ import os
 import json
 from pathlib import Path
 from bs4 import BeautifulSoup
+from django.conf import settings
 from django.core.files.images import ImageFile
 
 from search_app.crawling.crawlselenium import selenium_setting
@@ -171,9 +172,14 @@ class GetJobPlanetInfo:
         jobplanet_company_name = company_code[-1]
         company_code = company_code[-3]
 
-        path = os.path.join(BASE_DIR) + '/media/search_job/' + company_name + '/jobplanet/' + company_code + time.strftime(
+        if settings.DEBUG:
+            path = os.path.join(BASE_DIR) + '/media/search_job/' + company_name + '/jobplanet/' + time.strftime(
             "/%Y/%m/%d/")
-
+        else:
+            path = os.path.join(BASE_DIR).lstrip('/') + '/media/search_job/' + company_name + '/jobplanet/' + time.strftime(
+                "%Y/%m/%d/")
+       
+ 
         REVIEW_URL = "https://www.jobplanet.co.kr/companies/" + company_code + "/reviews/"
         driver.get(REVIEW_URL)
         driver.implicitly_wait(10)

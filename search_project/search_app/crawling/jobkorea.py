@@ -4,6 +4,7 @@ import time
 import os
 from pathlib import Path
 from bs4 import BeautifulSoup
+from django.conf import settings
 from django.core.files.images import ImageFile
 from search_app.crawling.crawlselenium import selenium_setting
 from search_app.models import CrwalingPhotos, JobKoreaInfo
@@ -68,8 +69,12 @@ class GetJobKoreaInfo:
         driver.implicitly_wait(5)
 
         # 이하 데이터 수집
-        path = os.path.join(BASE_DIR) + '/media/search_job/' + company_name + '/jobkorea/' + time.strftime(
-            "/%Y/%m/%d/")
+        if settings.DEBUG:
+            path = os.path.join(BASE_DIR) + '/media/search_job/' + company_name + '/jobkorea/' + time.strftime(
+                "/%Y/%m/%d/")
+        else:
+            path = os.path.join(BASE_DIR).lstrip('/') + '/media/search_job/' + company_name + '/jobkorea/' + time.strftime(
+                "%Y/%m/%d/")
         try:
             element = driver.find_element_by_class_name('company-body-infomation')
             total_height = element.size['height'] + 1000
