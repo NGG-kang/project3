@@ -14,8 +14,12 @@ urlpatterns = [
 
     # path('search_job/', views.search_jop_view, name="search_job"),
     path('search_job/', views.SearchJobTemplateView.as_view(), name="search_job"),
-    path('search_company/',views.SearchCompanyListView.as_view(), name="search_company"),
+    path('search_job_context/', views.SearchBodyTemplateView.as_view(), name="search_job_context"),
+    path('search_company/',views.SearchCompanyBodyListView.as_view(), name="search_company"),
+    path('search_company_context/',
+         views.SearchCompanyBodyListView.as_view(), name="search_company_context"),
     path('task_list/', views.TaskTemplateView.as_view(), name="task_list"),
+    path('is_company/', views.is_company, name='is_company'),
 
     path('create_enter/', views.EnterCreateView.as_view(), name="create_enter"),
     path('update_enter/<int:pk>/', views.EnterUpdateView.as_view(), name='update_enter'),
@@ -26,6 +30,7 @@ urlpatterns = [
 
 
     path('crwaling_info/', views.CrawlingInfoList.as_view(), name='crwaling_info'),
+    path('crwaling_info_context/', views.CrawlingInfoList.as_view(), name = 'crwaling_info_context'),
     path('crwaling_info_saramin/<int:pk>/', views.SaraminModalView.as_view(), name='crwaling_info_saramin'),
     path('crwaling_info_jobkorea/<int:pk>/', views.JobkoreaModalView.as_view(), name='crwaling_info_jobkorea'),
     path('crwaling_info_jobplanet/<int:pk>/', views.JobplanetModalView.as_view(), name='crwaling_info_jobplanet'),
