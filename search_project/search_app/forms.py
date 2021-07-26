@@ -11,17 +11,17 @@ class MyEnterpriseForm(BSModalModelForm):
         model = MyEnterprise
         exclude = ['author', ]
 
-    def clean_company(self, *args, **kwargs):
-        company = self.cleaned_data.get('company')
-        try:
-            # object = get_object_or_404(MyEnterprise, author=self.request.user.pk, company=company)
-            object = MyEnterprise.objects.filter(author=self.request.user.pk, company=company)
-            if object:
-                raise forms.ValidationError(company + '가 이미 존재합니다')
-            return company
-        except Exception as e:
-            print(e)
-            return company
+    # def clean_company(self, *args, **kwargs):
+    #     company = self.cleaned_data.get('company')
+    #     try:
+    #         # object = get_object_or_404(MyEnterprise, author=self.request.user.pk, company=company)
+    #         object = MyEnterprise.objects.filter(author=self.request.user.pk, company=company)
+    #         if object:
+    #             raise forms.ValidationError(company + '가 이미 존재합니다')
+    #         return company
+    #     except Exception as e:
+    #         print(e)
+    #         return company
 
 
 class SaraminForm(BSModalModelForm):
