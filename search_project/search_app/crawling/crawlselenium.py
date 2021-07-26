@@ -1,18 +1,31 @@
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from django.conf import settings
 from selenium import webdriver
 import chromedriver_autoinstaller
+from django.conf import settings
 
 def selenium_setting(url="https://www.google.com"):
+    
     chromedriver_autoinstaller.install()
     driver_options = webdriver.ChromeOptions()
     driver_options.headless = True
+    driver_options.add_argument('--no-sandbox')
     driver_options.add_argument('--disable-gpu')
     driver_options.add_argument("--mute-audio")
     driver_options.add_argument('--log-level=3')
+    driver_options.add_argument('--disable-dev-shm-usage')
     driver_options.add_argument('--start-maximized')
     driver_options.add_argument(
         "user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36")
     # driver_options.add_experimental_option('prefs', prefs)
     driver = webdriver.Chrome(options=driver_options)
+    
+    # driver = webdriver.Chrome(options=driver_options)
+    # driver = webdriver.Remote(desired_capabilities=DesiredCapabilities.CHROME, command_executor="chrome:4444", options=driver_options)
+    # if settings.DEBUG==True:
+    #     driver = webdriver.Chrome(options=driver_options)
+    # else:
+    #     driver = webdriver.Remote(desired_capabilities=DesiredCapabilities.CHROME, command_executor="chrome:4444", options=driver_options)
     driver.get(url)
     driver.execute_script("Object.defineProperty(navigator, 'plugins', {get: function() {return[1, 2, 3, 4, 5]}})")
     driver.execute_script("Object.defineProperty(navigator, 'languages', {get: function() {return ['ko-KR', 'ko']}})")
