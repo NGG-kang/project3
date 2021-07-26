@@ -1,0 +1,84 @@
+version: "3.8"
+services:
+    db:
+        image: postgres
+        environment: 
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=admin
+            - POSTGRES_DB=postgres
+            - POSTGRES_HOST_AUTH_METHOD=trust
+        restart: always
+        ports:
+            - "5432:5432"
+        # networks:
+        #     - my_network
+    redis:
+        image: redis
+        ports:
+            - "6379:6379"
+        command: redis-server
+        # networks:
+        #     - my_network
+    memcached:
+        image: memcached
+        ports:
+            - "11211:11211"
+    project3:
+        image: skarndrkd/project3:0.3
+        volumes: 
+            - ./project3:/project3
+        build:
+            context: .
+            dockerfile: ./Dockerfile-ec2-ubuntu
+        ports:
+            - "8000:8000"
+        depends_on:
+            - db
+            - redis
+            - memcached
+        links: 
+            - db:db
+            - memcached:memcached
+            - redis:redis
+        command: bash -c "pip3 install -r /requirements.txt && python3 manage.py makemigrations &&python3 manage.py migrate && gunicorn search_project.wsgi:application --bind 0.0.0.0:8000"
+    celery:
+        build:
+            context: .
+        volumes: 
+            - ./project3:/project3
+        environment: 
+            - CELERY_BROKER_URL=redis://redis:6379/0
+        depends_on:
+            - db
+            - redis
+            - memcached
+            - project3
+        links: 
+            - db:db
+            - memcached:memcached
+            - redis:redis
+            - project3
+        command: celery -A search_project worker -Q crwaling_enter_info -l info -P gevent --concurrency=1
+    flower:
+        build:
+            context: .
+        volumes: 
+            - ./project3:/project3
+        depends_on: 
+            - project3
+            - celery
+        environment: 
+            - CELERY_BROKER_URL=redis://redis:6379/0
+            - FLOWER_PORT=5555
+        ports:
+            - "5555:5555"
+        links: 
+            - celery:celery
+            - project3
+        command: celery -A search_project flower --broker_api=redis://redis:6379/0
+        # networks:
+        #     - my_network
+    
+
+        
+    
