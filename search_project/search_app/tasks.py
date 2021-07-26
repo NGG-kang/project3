@@ -22,7 +22,6 @@ from search_app.crawling.kreditjob import GetKreditJobInfo
 from search_app.search import SearchJob
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, get_list_or_404
-from celery_once import QueueOnce
 from kombu import Queue
 
 # worker수 제한
@@ -30,6 +29,7 @@ from kombu import Queue
 app.conf.task_queues = (
     Queue('crwaling_enter_info', routing_key='crwaling.#'),
     Queue('today_request_delete', routing_key='today.#'),
+    Queue('test_queue', routing_key='test.#'),
 )
 
 
@@ -158,3 +158,7 @@ class DumpCam(Polaroid):
         print('Tasks: {0}'.format(pformat(state.tasks, indent=4)))
         print('Total: {0.event_count} events, {0.task_count} tasks'.format(
             state))
+
+@shared_task(bind=True, retry=False)
+def test_task1(self):
+    logger.info("hello~")
