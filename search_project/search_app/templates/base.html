@@ -4,9 +4,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Index</title>
-     <script src="https://unpkg.com/htmx.org@1.4.1"></script>
-     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>search_job</title>
 
     <link rel="stylesheet" href="{% static 'bootstrap-5.0.2-dist/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'bootstrap-4.6.0-dist/css/bootstrap.min.css' %}">
@@ -49,57 +48,73 @@
 
 <header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
     <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="{% url 'search_app:search_job' %}" id="input-search">Share Company Info</a>
-    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse"
+    <button class="navbar-toggler position-fixed d-md-none collapsed" type="button" data-bs-toggle="collapse"
             data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false"
             aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="dropdown">
-        <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-           data-bs-toggle="dropdown" aria-expanded="false">
-            검색 선택
-        </a>
-        <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-            <li><a class="dropdown-item" href="#search_job">공고검색</a></li>
-            <li><a class="dropdown-item" href="#search_company">기업검색</a></li>
-        </ul>
+        {% comment %} <div class="input-group-prepend dropdown ">
+                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+                data-bs-toggle="dropdown" aria-expanded="false">
+                    검색 선택
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                    <li><a class="dropdown-item" href="#search_job">공고검색</a></li>
+                    <li><a class="dropdown-item" href="#search_company">기업검색</a></li>
+                </ul>
+            </div>
+        <form action="{% url 'search_app:search_job_context' %}" method="get" class="w-100 d-inline" id="search_form">
+                <input class="form-control form-control-dark w-100 d-inline" type="text" placeholder="공고 검색(사람인)" aria-label="Search"
+                    name="search_job" id="search_text" value="{{ request.GET.search_job_context }}">
+                <input type="hidden" name="page" value="1">
+        </form>
+     {% endcomment %}
+
+    <div class="input-group">
+        <div class="input-group-prepend" >
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</button>
+            <div class="dropdown-menu">
+            검색선택
+                <a class="dropdown-item" href="#search_job">공고검색</a>
+                <a class="dropdown-item" href="#search_company">기업검색</a>
+            </div>
+        </div>
+        <form action="{% url 'search_app:search_job_context' %}" method="get" id="search_form" class="w-75">
+            <input type="text" class="form-control" placeholder="공고 검색(사람인)"
+                name="search_job" id="search_text" value="{{ request.GET.search_job_context }}">
+            <input type="hidden" name="page" value="1">
+        </form>
     </div>
-
-    <form action="{% url 'search_app:search_job_context' %}" method="get" class="w-100" id="search_form">
-        <input class="form-control form-control-dark w-100" type="text" placeholder="공고 검색(사람인)" aria-label="Search"
-               name="search_job" id="search_text" value="{{ request.GET.search_job_context }}">
-        <input type="hidden" name="page" value="1">
-    </form>
     
-
-    <ul class="navbar-nav">
+    
+    <ul class="navbar-nav list-group-horizontal">
         {% if request.user.is_authenticated %}
         <li class="nav-item text-nowrap">
         <a href="{% url 'accounts:logout' %}" id="Logout-btn" class="nav-link px-3"name="button">Logout</a>
         </li>
         {% else %}
-        <li class="nav-item text-nowrap"><a id="login-btn" class="nav-link px-3" type="button" name="button">Login</a>
+        <li class="nav-item text-nowrap d-inline"><a id="login-btn" class="nav-link px-3" type="button" name="button">Login</a>
         </li>
-        <li class="nav-item text-nowrap"><a id="signup-btn" class="nav-link px-3" type="button" name="button">Sign
+        <li class="nav-item text-nowrap d-inline"><a id="signup-btn" class="nav-link px-3" type="button" name="button">Sign
             up</a></li>
         {% endif %}
     </ul>
 <!--  알람창(일단 크롤링 신청건만 사용중)  -->
-</header>
-   <div id="position-relative">
-        <div class="position-absolute top-0 start-50 translate-middle-x">
+    <div id="position-relative d-none">
+        <div class="position-absolute top-20 start-50 translate-middle-x">
             {% if messages %}
-            <ul class="messages">
                 {% for message in messages %}
-                <li
-                        {% if message.tags %} class="alert alert-{{ message.tags }}" {% endif %}>{{ message }}
-                </li>
+                <div
+                        {% if message.tags %} class="alert alert-{{ message.tags }} alert-dismissible fade show" {% endif %}>{{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
                 {% endfor %}
-            </ul>
             {% endif %}
             <div class="alert-box" id="alert-box"></div>
         </div>
     </div>
+</header>
+   
 
 <div class="container-fluid">
     <div class="row">
@@ -212,18 +227,7 @@
 
             </div>
         </nav>
-
-        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4" id="main">
-        <div class="d-flex justify-content-center" id="spinner"></div>
-                <div id="content_all">
-                
-                {% block content %}
-                {% endblock %}
-                </div>
-        </main>
-    </div>
-</div>
-<script type="text/javascript">
+        <script type="text/javascript">
           $(function () {
             // Log in button
             $("#login-btn").modalForm({
@@ -249,7 +253,7 @@
                 $("#search_text").attr('value','{{request.GET.search_company}}');
                 $("#search_form").attr('action','{% url 'search_app:search_company_context' %}');
             }
-            $(".dropdown-menu li").click(function() {
+            $(".dropdown-menu a").click(function() {
                   var text = $(this).text()
                   switch(text) {
                     case '공고검색':
@@ -365,6 +369,7 @@
                     
                 },
                 error: function (response) {
+                {% comment %} $(".position-relative").removeClass('d-none') {% endcomment %}
                 console.log(response.status);
                 $(".alert-box").append(
                     $("<div/>")
@@ -380,13 +385,27 @@
                     )
                 );
                 $(".spinner-border").remove()
+                
                 },
+
             })
             .done(function(json) {    
             });
             });
 
-            
-</script>
+                    
+        </script>
+
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4" id="main">
+        <div class="d-flex justify-content-center" id="spinner"></div>
+                <div id="content_all">
+                
+                {% block content %}
+                {% endblock %}
+                </div>
+        </main>
+    </div>
+</div>
+
 </body>
 </html>
