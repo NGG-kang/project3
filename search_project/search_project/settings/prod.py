@@ -32,30 +32,30 @@ CELERY_TIMEZONE = 'Asia/Seoul'
 CELERY_CACHE_BACKEND = 'default'
 
 # django setting.
-CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://redis:6379/0",
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        }
-    }
-}
-
 # CACHES = {
-#     'default': {
-#         'BACKEND': 'djpymemcache.backend.PyMemcacheCache',
-#         'LOCATION': [
-#             'host.docker.internal:11211',
-#         ],
-#         'OPTIONS': {
-#             'no_delay': True,
-#             'ignore_exc': True,
-#             'max_pool_size': 4,
-#             'use_pooling': True,
+#     "default": {
+#         "BACKEND": "django_redis.cache.RedisCache",
+#         "LOCATION": "redis://redis:6379/0",
+#         "OPTIONS": {
+#             "CLIENT_CLASS": "django_redis.client.DefaultClient",
 #         }
-#     },
+#     }
 # }
+
+CACHES = {
+   'default': {
+       'BACKEND': 'djpymemcache.backend.PyMemcacheCache',
+       'LOCATION': [
+           'host.docker.internal:11211',
+       ],
+       'OPTIONS': {
+           'no_delay': True,
+           'ignore_exc': True,
+           'max_pool_size': 4,
+           'use_pooling': True,
+       }
+   },
+}
 
 # CELERY_BEAT_SCHEDULE = {
 #     'today_request_delete': {
