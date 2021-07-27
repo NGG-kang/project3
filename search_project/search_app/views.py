@@ -146,11 +146,11 @@ class SearchCompanyBodyListView(LoginRequiredMixin, generic.ListView):
 class TaskTemplateView(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        tasks_url = 'http://localhost:5555/api/tasks'
-        # if settings.debug == "True":
-        #     tasks_url = 'http://127.0.0.1:5555/api/tasks'
-        # else:
-        #     tasks_url = 'http://host.docker.internal:5555/api/tasks'
+        #tasks_url = 'http://localhost:5555/api/tasks'
+        if settings.DEBUG == "True":
+            tasks_url = 'http://127.0.0.1:5555/api/tasks'
+        else:
+            tasks_url = 'http://host.docker.internal:5555/api/tasks'
         logger.info(tasks_url)
         res = requests.get(tasks_url).text
         task = json.loads(res)
@@ -259,36 +259,42 @@ def apply_enter_info(request):
             logger.info("시작")
             logger.info(company_name, company_link)
             try:
+                cache.get_or_set('today_request', 0)
                 cache_val = cache.get('today_request', 0)
+                print(cache.get('today_request'))
+                logger.info(cache_val)
                 if not cache_val:
                     cache.set('today_request', 0)
                 # 일단 오늘 리퀘스트 올려놓고
-                cache.incr('today_request')
-                logger.info(cache.get('today_request'))
+                    cache.incr('today_request')
+                    logger.info(cache.get('today_request'))
 
                 # 만약 500건이 넘었다면 취소
                 if cache.get('today_request') >= 500:
+                #if False:
                     cache.decr('today_request')
                     messages.warning(request, '하루 최대 크롤링 요청에 도달했습니다. 내일 다시 신청이 가능합니다. (하루 최대 500건)')
                     return HttpResponse(status=400)
+                
                 # 아니라면 줄여놓고 크롤링 끝내고 다시 올려놓기
-                else:
-                    logger.info('500건 미만, 크롤링 시작합니다.')
-                    cache.decr('today_request')
-                    logger.info(cache.get('today_request'))
             except Exception as e:
                 logger.warning(e)
                 logger.warning("캐시부분 에러")
                 messages.warning(request, '캐시부분 서버에 에러가 있습니다. 제작자에게 문의 해주세요')
                 return HttpResponse(status=500)
+            
             try:
+                #logger.info('500건 미만, 크롤링 시작합니다.')
+                #cache.decr('today_request')
+                #logger.info(cache.get('today_request'))``
                 # delay에 queue를 넣는 방법이 있나?
                 # crwaling_enter_info.delay(company_name=company_name, url=company_link)
+                messages.warning(request, '현재 요청한 크롤링 정보를 서버에서 받았습니다')
                 crwaling_enter_info.apply_async(kwargs={"company_name": company_name, "url": company_link}, countdown=1, queue='crwaling_enter_info')
             except Exception as e:
-                logger.warnin(e)
+                logger.warning(e)
                 logger.warning("크롤링 부분 에러")
-                return HttpResponse(status=500)
+                return HttpResponse(status=400)
             
             # 메세지는 스택처럼 쌓여서 나중에 한번에 보일수 있음.
             messages.success(request, '크롤링 신청 완료.')
