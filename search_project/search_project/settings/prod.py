@@ -31,7 +31,7 @@ CELERY_TIMEZONE = 'Asia/Seoul'
 # celery setting.
 CELERY_CACHE_BACKEND = 'default'
 
-# django setting.
+# django cache setting.
 # CACHES = {
 #     "default": {
 #         "BACKEND": "django_redis.cache.RedisCache",
@@ -124,16 +124,3 @@ STATICFILES_DIRS = [
 ]
 
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-        },
-    },
-    'root': {
-        'handlers': ['console'],
-        'level': 'WARNING',
-    },
-}

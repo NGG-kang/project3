@@ -22,29 +22,30 @@ CELERY_TIMEZONE = 'Asia/Seoul'
 CELERY_CACHE_BACKEND = 'default'
 
 # django setting.
-CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        }
-    }
-}
+# prod에서 redis 캐시가 안먹여서 memcache로 변경
 # CACHES = {
-#     'default': {
-#         'BACKEND': 'djpymemcache.backend.PyMemcacheCache',
-#         'LOCATION': [
-#             '127.0.0.1:11211',
-#         ],
-#         'OPTIONS': {
-#             'no_delay': True,
-#             'ignore_exc': True,
-#             'max_pool_size': 4,
-#             'use_pooling': True,
+#     "default": {
+#         "BACKEND": "django_redis.cache.RedisCache",
+#         "LOCATION": "redis://127.0.0.1:6379/1",
+#         "OPTIONS": {
+#             "CLIENT_CLASS": "django_redis.client.DefaultClient",
 #         }
-#     },
+#     }
 # }
+CACHES = {
+    'default': {
+        'BACKEND': 'djpymemcache.backend.PyMemcacheCache',
+        'LOCATION': [
+            '127.0.0.1:11211',
+        ],
+        'OPTIONS': {
+            'no_delay': True,
+            'ignore_exc': True,
+            'max_pool_size': 4,
+            'use_pooling': True,
+        }
+    },
+}
 
 SCHEDULE_MINUTE = 60
 SCHEDULE_HOUR = 60 * SCHEDULE_MINUTE
