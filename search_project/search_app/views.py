@@ -6,7 +6,7 @@ from django.http.response import JsonResponse
 import requests
 import operator
 
-from django.db.models.expressions import Subquery
+from django.db.models.expressions import F, Subquery
 from search_app.search import SearchJob
 
 import httpx
@@ -44,6 +44,7 @@ from search_app.tasks import crwaling_enter_info
 from celery.result import ResultBase
 from search_project.celery import app
 from django.core.cache import cache
+from django.template.loader import render_to_string
 logger = logging.getLogger(__name__)
 
 class SearchView(APIView):
@@ -95,6 +96,7 @@ class SearchJobTemplateView(TemplateView):
             if not page:
                 page = "1"
             context = SearchJob(context, page, search_job)
+            context['page'] = page
         return render(template_name="search_job.html", context=context, request=request)
 
 # search_job 검색시 ajax용도 그냥 함수로 구현해도 되는데 ㅎㅎ;;
@@ -109,6 +111,7 @@ class SearchBodyTemplateView(TemplateView):
             if not page:
                 page = "1"
             context = SearchJob(context, page, search_job)
+            context['page'] = page
         return render(template_name="search_body.html", context=context, request=request)
 
 
@@ -156,13 +159,13 @@ class TaskTemplateView(TemplateView):
         task = json.loads(res)
         return render(template_name="task_view.html", context={'task': sorted(task.items())}, request=request)
 
-
+# Read
 class Index(generic.ListView):
     model = MyEnterprise
     context_object_name = 'enters'
     template_name = 'enter_list.html'
 
-
+# Create
 class EnterCreateView(BSModalCreateView):
     template_name = 'enter_form/create_enter.html'
     form_class = MyEnterpriseForm
@@ -246,7 +249,6 @@ class GetUserEnterInfoDetail(LoginRequiredMixin, generic.DetailView):
             )
         return queryset
 
-
 # 크롤링 신청 함수
 # TODO: celery 넘어가기 전에 하루 request 500번 미만 체크
 # TODO: 여러 요청해도 한개의 크롤링만 돌아가도록
@@ -257,18 +259,13 @@ def apply_enter_info(request):
             company_name, company_link = request.POST.get(
                 "company_name"), request.POST.get("company_link")
             logger.info("시작")
-            logger.info(company_name, company_link)
+            logger.info(company_name)
+            logger.info(company_link)
             try:
-                cache.get_or_set('today_request', 0)
-                cache_val = cache.get('today_request', 0)
-                print(cache.get('today_request'))
-                logger.info(cache_val)
-                if not cache_val:
-                    cache.set('today_request', 0)
+                logger.info(cache.get_or_set('today_request', 0, None))
                 # 일단 오늘 리퀘스트 올려놓고
-                    cache.incr('today_request')
-                    logger.info(cache.get('today_request'))
-
+                cache.incr('today_request', 1)
+                logger.info(cache.get('today_request'))
                 # 만약 500건이 넘었다면 취소
                 if cache.get('today_request') >= 500:
                 #if False:
@@ -284,26 +281,26 @@ def apply_enter_info(request):
                 return HttpResponse(status=500)
             
             try:
-                #logger.info('500건 미만, 크롤링 시작합니다.')
-                #cache.decr('today_request')
-                #logger.info(cache.get('today_request'))``
+                logger.info('500건 미만, 크롤링 시작합니다.')
+                cache.decr('today_request')
                 # delay에 queue를 넣는 방법이 있나?
                 # crwaling_enter_info.delay(company_name=company_name, url=company_link)
-                messages.warning(request, '현재 요청한 크롤링 정보를 서버에서 받았습니다')
+                logger.info("크롤링 시작")
                 crwaling_enter_info.apply_async(kwargs={"company_name": company_name, "url": company_link}, countdown=1, queue='crwaling_enter_info')
+                # 메세지는 스택처럼 쌓여서 나중에 한번에 보일수 있음.
+                messages.success(request, '크롤링 신청 완료.')
+                return HttpResponse(status=204)
             except Exception as e:
                 logger.warning(e)
                 logger.warning("크롤링 부분 에러")
                 return HttpResponse(status=400)
-            
-            # 메세지는 스택처럼 쌓여서 나중에 한번에 보일수 있음.
-            messages.success(request, '크롤링 신청 완료.')
-            return HttpResponse(status=204)
 
         except Exception as e:
             logger.info(e)
             logger.info("중간에 에러 발생")
             return HttpResponse(status=500)
+    else:
+        return HttpResponse(status=403)
 
 
 def is_company(request):
