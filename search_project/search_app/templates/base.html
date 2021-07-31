@@ -23,7 +23,7 @@
         .bd-placeholder-img-lg {
           font-size: 3.5rem;
         }
-      }
+    }
     </style>
     <style type="text/css">/* Chart.js */
 @keyframes chartjs-render-animation{from{opacity:.99}to{opacity:1}}.chartjs-render-monitor{animation:chartjs-render-animation 1ms}.chartjs-size-monitor,.chartjs-size-monitor-expand,.chartjs-size-monitor-shrink{position:absolute;direction:ltr;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1}.chartjs-size-monitor-expand>div{position:absolute;width:1000000px;height:1000000px;left:0;top:0}.chartjs-size-monitor-shrink>div{position:absolute;width:200%;height:200%;left:0;top:0}
@@ -38,7 +38,7 @@
 <script src="{% static 'js/jquery.bootstrap.modal.forms.min.js' %}"></script>
 
 <!--기본 modal-->
-<div class="modal fade" tabindex="-1" role="dialog" id="modal">
+<div class="modal fade " tabindex="-1" role="dialog" id="modal">
     <div class="modal-dialog modal-dialog-scrollable modal-xl" role="document">
         <div class="modal-content"></div>
     </div>
@@ -71,17 +71,16 @@
      {% endcomment %}
 
     <div class="input-group">
-        <div class="input-group-prepend" >
-            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</button>
+        <div class="input-group-prepend">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">검색선택</button>
             <div class="dropdown-menu">
-            검색선택
                 <a class="dropdown-item" href="#search_job">공고검색</a>
                 <a class="dropdown-item" href="#search_company">기업검색</a>
             </div>
         </div>
-        <form action="{% url 'search_app:search_job_context' %}" method="get" id="search_form" class="w-75">
+        <form action="{% url 'search_app:search_job_context' %}" method="get" id="search_form" class="w-50">
             <input type="text" class="form-control" placeholder="공고 검색(사람인)"
-                name="search_job" id="search_text" value="{{ request.GET.search_job_context }}">
+                name="search_job" id="search_text" value="{{ request.GET.search_job }}">
             <input type="hidden" name="page" value="1">
         </form>
     </div>
@@ -228,6 +227,17 @@
             </div>
         </nav>
         <script type="text/javascript">
+        {% comment %} var main = $('main')
+        $(window).bind('popstate', function(event) {
+                // if the event has our history data on it, load the page fragment with AJAX
+                var state = event.originalEvent.state;
+                console.log(state)
+                if (state) {
+                    main.empty()
+                    main.load(state.path);
+                }
+            });
+            history.replaceState({ path: window.location.href }, ''); {% endcomment %}
           $(function () {
             // Log in button
             $("#login-btn").modalForm({
@@ -235,10 +245,15 @@
             });
           });
           $(document).ready(function () {
+            
+            
             // Log in button
             $(".login_required").modalForm({
                 formURL: "{% url 'accounts:login' %}"
             });
+            setTimeout(function () {
+                $(".alert").alert("close");
+            }, 5000);
             {% comment %} URL 정보를 가져온다 {% endcomment %}
             let searchParams = new URLSearchParams(window.location.search);
             if (searchParams.has('search_job')){
@@ -274,27 +289,11 @@
                         $("#search_text").attr('placeholder','공고 검색');
                         $("#search_text").attr('name','search_job');
                         $("#search_form").attr('action','{% url 'search_app:search_job_context' %}');
-                    }
-            });
-            var originalTitle=document.title
-            function hashChange(){
-                var page=location.hash.slice(1)
-                if (page!=""){
-                    $('#content').load(page+".html #sub-content")
-                    document.title=originalTitle+' – '+page
                 }
-            }
-            if ("onhashchange" in window){ // cool browser
-                $(window).on('hashchange',hashChange).trigger('hashchange')
-            }else{ // lame browser
-                var lastHash=''
-                setInterval(function(){
-                    if (lastHash!=location.hash)
-                        hashChange()
-                    lastHash=location.hash
-                },100)
-            }
-          });
+            });
+
+            
+            });
           $(function () {
             // Sign up button
             $("#signup-btn").modalForm({
@@ -310,6 +309,7 @@
           
           $("#search_form").on("submit", function (e) {
             e.preventDefault();
+            
             $.ajax({
                 url: this.action,
                 type: $(this).attr("method"),
@@ -320,31 +320,15 @@
                     } {% endcomment %}
                     var search = $("#search_form").serialize()
                     var searchArray = $("#search_form").serializeArray()
-                    var saerch_query = searchArray[1]
-                    var page = searchArray[0]
-                    var search_state = {"search_job" : saerch_query['value'], "name": page['value']}
-                    const title = ''
-                    console.log(search, searchArray)
-                    window.history.pushState(search_state, title, "/search_job?"+search);
-                    var originalTitle=document.title
-                    function hashChange(){
-                        var page=location.hash.slice(1)
-                        if (page!=""){
-                            $('#content').load(page+".html #sub-content")
-                            document.title=originalTitle+' – '+page
-                        }
+                    var saerch_query = searchArray[0]
+                    var page = searchArray[1]
+                    if (!page){
+                        params.set('page', 1);
                     }
-                    if ("onhashchange" in window){ // cool browser
-                        $(window).on('hashchange',hashChange).trigger('hashchange')
-                    }else{ // lame browser
-                        var lastHash=''
-                        setInterval(function(){
-                            if (lastHash!=location.hash)
-                                hashChange()
-                            lastHash=location.hash
-                        },100)
-                    }
-                    hashChange();
+                    var search_state = {"search_job" : searchArray[0]['value'], "page": page['value']}
+                    console.log(search_state)
+                    window.history.pushState(search_state, '', search);
+                    
                     $("#spinner").addClass("mt-5").append(
                         $("<div/>")
                         .attr("role", "alert")
@@ -391,16 +375,15 @@
             })
             .done(function(json) {    
             });
-            });
-
-                    
+            });   
         </script>
-
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4" id="main">
         <div class="d-flex justify-content-center" id="spinner"></div>
                 <div id="content_all">
-                
                 {% block content %}
+                    {% if joblist %}
+                        {% include 'search_body.html' %}
+                    {% endif %}
                 {% endblock %}
                 </div>
         </main>
