@@ -15,14 +15,9 @@ RUN unzip /tmp/chromedriver.zip chromedriver -d /usr/local/bin/
 RUN apt-get install fonts-noto-cjk
 RUN apt-get install fonts-nanum
 RUN apt-get clean
-# RUN cd /usr/share/fonts/
-# # 나눔고딕 폰트 파일을 다운로드합니다.
-# RUN wget http://cdn.naver.com/naver/NanumFont/fontfiles/NanumFont_TTF_ALL.zip
-# # 나눔고딕 폰트 파일의 압축을 해제합니다.
-# RUN unzip NanumFont_TTF_ALL.zip -d NanumFont
-# # 사용이 끝난 압축파일을 삭제합니다.
-# RUN rm -f NanumFont_TTF_ALL.zip
-# # 시스템 폰트 리스트를 갱신합니다.
+
+RUN apt-get install -y cron
+RUN service cron start
 RUN fc-cache -r
 
 ENV DISPLAY=:99
@@ -38,7 +33,7 @@ COPY . /
 RUN python /django-bootstrap-modal-forms-2.2.0/setup.py install
 RUN pip3 install -r /requirements.txt
 
-
+CMD ["cron"]
 CMD ["gunicorn", "search_project.wsgi:application", "--bind", "0.0.0.0:8000"]
 # CMD ["python", "manage.py", "runserver"]
 EXPOSE 8000

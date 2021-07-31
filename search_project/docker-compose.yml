@@ -50,7 +50,7 @@ services:
     project3:
         # environment: 
         #     - PASSWORD=password
-        image: skarndrkd/project3:1.1
+        image: skarndrkd/project3:1.2
         build:
             context: .
             dockerfile: ./Dockerfile
@@ -72,8 +72,8 @@ services:
             # - db:db
             - memcached:memcached
             - redis:redis
-        # command: bash -c "pip3 install -r requirements.txt && python3 manage.py makemigrations &&python3 manage.py migrate && python3 manage.py runserver 0.0.0.0:8000"
-        command: bash -c "pip3 install -r /requirements.txt && python3 manage.py makemigrations &&python3 manage.py migrate && gunicorn search_project.wsgi:application --bind 0.0.0.0:8000"
+        # command: bash -c "pip3 install -r requirements.txt && python3 manage.py makemigrations && python3 manage.py migrate && python3 manage.py runserver 0.0.0.0:8000"
+        command: bash -c "pip3 install -r /requirements.txt && python3 manage.py makemigrations && python3 manage.py migrate && python3 manage.py crontab remove && python3 manage.py crontab add && python3 manage.py crontab show && service cron start && gunicorn search_project.wsgi:application --bind 0.0.0.0:8000"
     celery:
         build:
             context: ./
