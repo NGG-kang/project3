@@ -31,26 +31,3 @@ app.conf.update(
     CELERY_BEAT_SCHEDULER='django_celery_beat.schedulers:DatabaseScheduler',
 )
 django.setup()
-
-app.conf.beat_schedule = {
-    # Executes at sunset in Melbourne
-    'please_say_hello': {
-        'task': 'tasks.test_task1',
-        'schedule': 1.0,
-    },
-}
-
-@app.task
-def today_request_delete():
-    count = cache.get('today_request')
-    cache.decr('today_request', count)
-    # try:
-    #     print('캐시 삭제: ', cache.delete('today_request'))
-    #     print('캐시 생성: ', cache.set('today_request', 0))
-    # except:
-    #     return False
-
-
-@app.task
-def say_hello():
-    logger.info("hello~")
