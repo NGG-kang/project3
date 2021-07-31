@@ -3,6 +3,7 @@ django
 pillow
 djangorestframework
 django_debug_toolbar
+django-extensions
 
 # cache
 pymemcache
