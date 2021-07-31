@@ -38,10 +38,11 @@
             <td>{{ values.succeeded|timestamp_to_date }}</td>
             {{ values.kwargs|unpack_kwargs }}
             {% if values.runtime != None %}
-            {% if value.state == "success" %}
-            <td>{{values.runtime}}초</td>
-            {% else %}
-            <td>진행중 또는 실패</td>
+                {% if value.state|lower == "success" %}
+                <td>{{values.runtime}}초</td>
+                {% else %}
+                <td>진행중 또는 실패</td>
+                {% endif %}
             {% endif %}
         </tr>
         {% endfor %}
