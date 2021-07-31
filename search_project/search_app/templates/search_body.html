@@ -31,7 +31,7 @@
   <div class="d-flex justify-content-between flex-wrap flex-md-nowrap">
     <nav aria-label="Page navigation">
       <ul class="pagination justify-content-center">
-        {% if request.GET.page == '1' %}
+        {% if page == '1' %}
         <li class="page-item disabled">
           <a class="page-link" href="#" tabindex="-1" aria-disabled="true"
             >Previous</a
@@ -41,14 +41,14 @@
         <li class="page-item">
           <a
             class="page-link"
-            href="{% url 'search_app:search_job' %}?search_job={{ last_q }}&page={{ request.GET.page | minus:1 }}"
+            href="{% url 'search_app:search_job' %}?search_job={{ last_q }}&page={{ page | minus:1 }}"
             tabindex="-1"
             aria-disabled="true"
             >Previous</a
           >
         </li>
         {% endif %} {% for i in page_cal|pages %}
-        {% if request.GET.page|is_same_int:i %}
+        {% if page|is_same_int:i %}
         <li class="page-item active">
           <span 
             class="page-link"
@@ -67,7 +67,7 @@
         {% endif %}
         {% empty %}
         <li class="page-item"><a class="page-link active">1</a></li>
-        {% endfor %} {% if request.GET.page|is_last_page:page_cal%}
+        {% endfor %} {% if page|is_last_page:page_cal%}
         <li class="page-item disabled">
           <a class="page-link" href="#" tabindex="-1" aria-disabled="true"
             >Next</a
@@ -77,7 +77,7 @@
         <li class="page-item">
           <a
             class="page-link"
-            href="{% url 'search_app:search_job' %}?search_job={{ last_q }}&page={{ request.GET.page | plus:1 }}"
+            href="{% url 'search_app:search_job' %}?search_job={{ last_q }}&page={{ page | plus:1 }}"
             tabindex="-1"
             aria-disabled="true"
             >Next</a
@@ -108,7 +108,7 @@
     <tbody>
       {% for job in job_list %}
       <tr>
-        <th scope="row">{{forloop.counter|counter:request.GET.page}}</th>
+        <th scope="row">{{forloop.counter|counter:page}}</th>
         <td
           style="cursor: pointer"
           onclick="window.open('https://www.saramin.co.kr{{ job.href }}')"
@@ -222,21 +222,6 @@
       });
       
     });
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                // Does this cookie string begin with the name we want?
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-      }
-      return cookieValue;
-      }
     $("#apply_enter_info").on("submit", function (e) {
       e.preventDefault();
       
@@ -246,10 +231,8 @@
         url: this.action,
         type: $(this).attr("method"),
         data: $("#apply_enter_info").serialize(),
-        headers:{
-        "X-CSRFToken": csrftoken
-        },
         success: function (data) {
+          $("#exampleModal").modal("hide");
           $(".alert-box").append(
             $("<div/>")
               .attr("role", "alert")
@@ -266,7 +249,7 @@
           setTimeout(function () {
             $(".alert").alert("close");
           }, 5000);
-          $("#exampleModalLabel").modal("hide");
+          
         },
         error: function (response) {
           console.log(response.status);
@@ -283,6 +266,7 @@
                   .addClass("btn-close")
               )
           );
+          $("#exampleModal").modal("hide");
         },
       });
     });
@@ -295,7 +279,7 @@
                 beforeSend: function() {
                     var search = $(this).serialize
                     console.log(search)
-                    window.history.pushState("", "Title", "/search_comapny?"+search);
+                    window.history.pushState("", "", "/search_comapny/?"+search);
                     $("#spinner").addClass("mt-5").append(
                         $("<div/>")
                         .attr("role", "alert")
@@ -313,6 +297,8 @@
                 },
                 success: function (data) {
                     console.log(data)
+                    $(".navbar").remove()
+                    $(".container-fluid").remove()
                     $(".spinner-border").remove()
                     $(".table-responsive").remove()
                     $("#content_all").remove()
