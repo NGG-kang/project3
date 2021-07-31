@@ -5,13 +5,10 @@
 
   <div class="modal-header">
     <h3 class="modal-title">Create Book</h3>
-    <button type="button" class="close btn-close" data-dismiss="modal" aria-label="Close">
-
-    </button>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
   </div>
 
   <div class="modal-body">
-
     <div class="{% if form.non_field_errors %}invalid{% endif %} mb-2">
       {% for error in form.non_field_errors %}
         {{ error }}
