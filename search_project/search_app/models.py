@@ -16,7 +16,7 @@ class TimeModel(models.Model):
         abstract = True
 
 
-# 게시판용으로 만들었는데 안 쓰는중
+# 게시판용으로 만들었는데 안 쓰는중 api에 들어가있음
 class Post(TimeModel):
     author = models.ForeignKey(on_delete=models.CASCADE, to=get_user_model())
     title = models.CharField(max_length=20)
@@ -27,6 +27,7 @@ class Post(TimeModel):
         return self.title
 
 
+# 게시판용으로 만들었는데 안 쓰는중 api에 들어가있음
 class Comment(TimeModel):
     author = models.ForeignKey(on_delete=models.CASCADE, to=get_user_model())
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
@@ -53,8 +54,6 @@ class MyEnterprise(TimeModel):
         return reverse('search_app:post_detail', args=[self.request.user.pk])
 
 
-
-# 여기부터 게시글 모델들
 class MyEnterPhoto(TimeModel):
     my_enter = models.ForeignKey(MyEnterprise, models.CASCADE)
     photo = models.ImageField(blank=True, upload_to="search_job/%Y/%m/%d")
@@ -62,7 +61,7 @@ class MyEnterPhoto(TimeModel):
     def __str__(self):
         return self.photo.name
 
-
+# 이하 4가지 안쓰는 모델
 class Select(models.TextChoices):
     SARAMIN = 0
     PUBLIC = 1
