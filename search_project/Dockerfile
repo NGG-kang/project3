@@ -33,7 +33,6 @@ COPY . /
 RUN python /django-bootstrap-modal-forms-2.2.0/setup.py install
 RUN pip3 install -r /requirements.txt
 
-CMD ["cron"]
 CMD ["gunicorn", "search_project.wsgi:application", "--bind", "0.0.0.0:8000"]
 # CMD ["python", "manage.py", "runserver"]
 EXPOSE 8000
