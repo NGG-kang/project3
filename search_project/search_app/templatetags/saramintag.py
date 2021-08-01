@@ -111,3 +111,18 @@ def unpack_kwargs(value):
            '<td style="cursor:pointer;" onclick="window.open(\'' + \
         href+'\')">'+href+'</td>'
     return mark_safe(text)
+
+
+@register.filter
+def task_status(status):
+    status = str(status).lower
+    value = ""
+    if status == "success":
+        return True
+    elif status == "recieve":
+        value = "대기중"
+    elif status == "started":
+        value = "진행중"
+    else:
+        value = "실패"
+    return value
