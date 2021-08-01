@@ -132,9 +132,9 @@ class GetSaraminEnterInfo:
             image1 = ImageFile(io.BytesIO(screenshot1), name="company_name" + '_company_info.png')
             print(image1)
             print("성공")
-            pathlib.Path(path).mkdir(parents=True, exist_ok=True)
-            with open(path + company_name + company_csn + '_company_info.png', 'wb') as f:
-                f.write(screenshot1)
+            # pathlib.Path(path).mkdir(parents=True, exist_ok=True)
+            # with open(path + company_name + company_csn + '_company_info.png', 'wb') as f:
+            #     f.write(screenshot1)
 
         except Exception as e:
             print(e)
@@ -164,9 +164,9 @@ class GetSaraminEnterInfo:
             time.sleep(1)
             screenshot2 = element.screenshot_as_png
             image2 = ImageFile(io.BytesIO(screenshot2), name=company_name + '_company_info_salary.png')
-            pathlib.Path(path).mkdir(parents=True, exist_ok=True)
-            with open(path + company_name + company_csn + '_company_info_salary.png', 'wb') as f:
-                f.write(screenshot2)
+            # pathlib.Path(path).mkdir(parents=True, exist_ok=True)
+            # with open(path + company_name + company_csn + '_company_info_salary.png', 'wb') as f:
+            #     f.write(screenshot2)
             # html = driver.page_source
             # if html:
             #     soup = BeautifulSoup(html, 'lxml')
@@ -187,9 +187,9 @@ class GetSaraminEnterInfo:
             time.sleep(1)
             screenshot3 = element.screenshot_as_png
             image3 = ImageFile(io.BytesIO(screenshot3), name=company_name + '_company_info_finance.png')
-            pathlib.Path(path).mkdir(parents=True, exist_ok=True)
-            with open(path + company_name + company_csn + '_company_info_finance.png', 'wb') as f:
-                f.write(screenshot3)
+            # pathlib.Path(path).mkdir(parents=True, exist_ok=True)
+            # with open(path + company_name + company_csn + '_company_info_finance.png', 'wb') as f:
+            #     f.write(screenshot3)
             # pass
             # html = driver.page_source
             # if html:
