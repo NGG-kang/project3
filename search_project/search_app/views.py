@@ -286,7 +286,7 @@ def apply_enter_info(request):
                 # delay에 queue를 넣는 방법이 있나?
                 # crwaling_enter_info.delay(company_name=company_name, url=company_link)
                 logger.info("크롤링 시작")
-                crwaling_enter_info.apply_async(kwargs={"company_name": company_name, "url": company_link}, countdown=1, queue='crwaling_enter_info')
+                # crwaling_enter_info.apply_async(kwargs={"company_name": company_name, "url": company_link}, countdown=1, queue='crwaling_enter_info')
                 # 메세지는 스택처럼 쌓여서 나중에 한번에 보일수 있음.
                 messages.success(request, '크롤링 신청 완료.')
                 return HttpResponse(status=204)
