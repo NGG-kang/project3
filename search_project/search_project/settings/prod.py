@@ -31,17 +31,6 @@ CELERY_TIMEZONE = 'Asia/Seoul'
 # celery setting.
 CELERY_CACHE_BACKEND = 'default'
 
-# django cache setting.
-# CACHES = {
-#     "default": {
-#         "BACKEND": "django_redis.cache.RedisCache",
-#         "LOCATION": "redis://redis:6379/0",
-#         "OPTIONS": {
-#             "CLIENT_CLASS": "django_redis.client.DefaultClient",
-#         }
-#     }
-# }
-
 CACHES = {
    'default': {
        'BACKEND': 'djpymemcache.backend.PyMemcacheCache',
@@ -56,42 +45,6 @@ CACHES = {
        }
    },
 }
-
-# CELERY_BEAT_SCHEDULE = {
-#     'today_request_delete': {
-#         'task': 'app.tasks.today_request_delete',
-#         'schedule': 10.0
-#         # 'schedule': 2.0,
-#         # 'args': (4, 4)
-#     },
-#     # 'today_request_delete': {
-#     #     'task': 'app.tasks.today_request_delete',
-#     #     'schedule': crontab(hour='0',
-#     #                         minute=0),
-#     #     # 'schedule': 2.0,
-#     #     # 'args': (4, 4)
-#     # }
-#     'say_hello': {
-#         'task': 'app.tasks.say_hello',
-#         'schedule': 10.0
-#         # 'schedule': 2.0,
-#         # 'args': (4, 4)
-#     },
-# }test_task1
-# CELERY_BEAT_SCHEDULE = {
-#     'say_hello': {
-#         'task': 'app.tasks.say_hello',
-#         'schedule': 1.0
-#         # 'schedule': 2.0,
-#         # 'args': (4, 4)
-#     },
-#     'test_task': {
-#         'task': 'app.tasks.test_task1',
-#         'schedule': 1.0
-#         # 'schedule': 2.0,
-#         # 'args': (4, 4)
-#     },
-# }
 
 AWS_REGION = 'ap-northeast-2'
 AWS_STORAGE_BUCKET_NAME = 'kang-project3-s3'
