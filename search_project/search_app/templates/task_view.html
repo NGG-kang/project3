@@ -37,10 +37,14 @@
             <td>{{ values.started|timestamp_to_date }}</td>
             <td>{{ values.succeeded|timestamp_to_date }}</td>
             {{ values.kwargs|unpack_kwargs }}
-            {% if value.state|task_status %}
-            <td>{{values.runtime}}초</td>
+            {% if values.state == "SUCCESS" %}
+            <td>{{values.runtime}}</td>
+            {% elif values.state == "RECEIVED" %}
+            <td>대기중</td>
+            {% elif values.state == "STARTED" %}
+            <td>진행중</td>
             {% else %}
-            <td>{{ value.state|task_status }}<td>
+            <td>실패</td>
             {% endif %}
         </tr>
         {% endfor %}

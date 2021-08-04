@@ -225,8 +225,6 @@
     $("#apply_enter_info").on("submit", function (e) {
       e.preventDefault();
       
-      const csrftoken = getCookie('csrftoken');
-      console.log(csrftoken)
       $.ajax({
         url: this.action,
         type: $(this).attr("method"),
@@ -297,8 +295,6 @@
                 },
                 success: function (data) {
                     console.log(data)
-                    $(".navbar").remove()
-                    $(".container-fluid").remove()
                     $(".spinner-border").remove()
                     $(".table-responsive").remove()
                     $("#content_all").remove()
