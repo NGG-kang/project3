@@ -1,19 +1,5 @@
 version: "3.8"
 services:
-    # db:
-    #     image: postgres
-    #     environment: 
-    #         - POSTGRES_USER=postgres
-    #         - POSTGRES_PASSWORD=admin
-    #         - POSTGRES_DB=postgres
-    #         - POSTGRES_HOST_AUTH_METHOD=trust
-    #     restart: always
-    #     ports:
-    #         - "5432:5432"
-    #     volumes: 
-    #         - ./:/project3
-        # networks:
-        #     - my_network
     redis:
         image: redis
         ports:
@@ -23,8 +9,6 @@ services:
             - ./:/project3
         extra_hosts: 
             - host.docker.internal:host-gateway
-        # networks:
-        #     - my_network
     memcached:
         image: memcached
         ports:
@@ -33,23 +17,19 @@ services:
             - ./:/project3
         extra_hosts: 
             - host.docker.internal:host-gateway
-        # entrypoint:
-        #     - memcached
-        #     - -m 512
-        # networks:
-        #     - my_network
     nginx:
         image: nginx
         container_name : nginx_service
+        build:
+            context: .
+            dockerfile: ./etc/nginx/Dockerfile
         volumes:
-            - ./:/project3/ubuntu/etc/nginx/nginx.conf
+            - ./:/project3/etc/nginx/nginx.conf
         ports:
             - "80:80"
         depends_on:
             - project3
     project3:
-        # environment: 
-        #     - PASSWORD=password
         image: skarndrkd/project3:1.2
         build:
             context: .
@@ -62,14 +42,10 @@ services:
             - "8000:8000"
         extra_hosts: 
             - host.docker.internal:host-gateway
-        # networks:
-        #     - my_network
         depends_on:
-            # - db
             - redis
             - memcached
         links: 
-            # - db:db
             - memcached:memcached
             - redis:redis
         # command: bash -c "pip3 install -r requirements.txt && python3 manage.py makemigrations && python3 manage.py migrate && python3 manage.py runserver 0.0.0.0:8000"
@@ -83,18 +59,14 @@ services:
         environment: 
             - CELERY_BROKER_URL=redis://guest@redis:6379/0
         depends_on:
-            # - db
             - redis
             - memcached
             - project3
         links: 
-            # - db:db
             - memcached:memcached
             - redis:redis
         command: celery -A search_project worker -Q crwaling_enter_info -l info --concurrency=1
         # command: celery -A search_project worker -l info
-        # networks:
-        #     - my_network
     flower:
         build:
             context: ./
@@ -110,16 +82,10 @@ services:
         ports:
             - "5555:5555"
         links: 
-            # - db:db
             - memcached:memcached
             - redis:redis
         command: celery -A search_project flower --broker_api=redis://redis:6379/0
-        # networks:
-        #     - my_network
 
 volumes: 
     media:
     project3:
-
-        
-    
