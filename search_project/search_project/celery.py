@@ -7,14 +7,14 @@ from celery.schedules import crontab
 from celery.utils.log import get_task_logger
 logger = get_task_logger(__name__)
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'search_project.settings.dev')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'search_project.settings.prod')
 app = Celery('search_project',
             include=['search_app.tasks'],
             )
 app.config_from_object(__name__)
-app.conf.update(
-    result_expired=3600,
-)
+# app.conf.update(
+#     result_expired=0,
+# )
 app.conf.timezone = 'Asia/Seoul'
 app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks()
