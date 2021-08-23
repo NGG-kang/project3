@@ -10,6 +10,7 @@ RUN apt-get install -yqq unzip
 RUN wget -O /tmp/chromedriver.zip http://chromedriver.storage.googleapis.com/`curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE`/chromedriver_linux64.zip
 RUN unzip /tmp/chromedriver.zip chromedriver -d /usr/local/bin/
 
+RUN apt-get install -y cron
 ENV DISPLAY=:99
 ENV PYTHONBUFFERED 1
 ENV DJANGO_SETTINGS_MODULE=search_project.settings.prod
@@ -22,7 +23,6 @@ ADD requirements.txt /
 COPY . / 
 RUN python /django-bootstrap-modal-forms-2.2.0/setup.py install
 RUN pip3 install -r /requirements.txt
-
 
 CMD ["gunicorn", "search_project.wsgi:application", "--bind", "0.0.0.0:8000"]
 # CMD ["python", "manage.py", "runserver"]
